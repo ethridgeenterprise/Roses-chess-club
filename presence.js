@@ -1,3 +1,4 @@
+import {gameOver} from './rules.js';
 
 import {createClient} from '@supabase/supabase-js';
 
@@ -16,7 +17,7 @@ export function installPresence(io, rooms) {
       const r = rooms.get(socket.data.room);
       const seated = r && r.sockets[socket.data.color] === socket.id;
       const playing = !!(seated && r.players.b &&
-        !r.timeout && !r.resigned && !r.game.isGameOver());
+        !r.timeout && !r.resigned && !gameOver(r));
       const existing = members.get(member.id);
       members.set(member.id, {
         id:member.id,

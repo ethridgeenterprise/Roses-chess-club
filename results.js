@@ -1,3 +1,4 @@
+import {outcome} from './rules.js';
 
 import {createClient} from '@supabase/supabase-js';
 
@@ -21,18 +22,11 @@ export function tracked(r){
 
 export function saveFinishedGame(r,io){
   if(!tracked(r)||r.saved||r.saving)return;
-  const loser=r.timeout||r.resigned||
-    (r.game.isCheckmate()?r.game.turn():null);
-  if(!loser&&!r.game.isGameOver())return;
+  const end=outcome(r);
+  if(!end)return;
   if(Date.now()-(r.lastSaveAttempt||0)<5000)return;
   r.lastSaveAttempt=Date.now();
-
-  const result=loser?(loser==='w'?'0-1':'1-0'):'1/2-1/2';
-  const reason=r.timeout?'timeout':r.resigned?'resignation':
-    r.game.isCheckmate()?'checkmate':
-    r.game.isStalemate()?'stalemate':
-    r.game.isInsufficientMaterial()?'insufficient material':
-    r.game.isThreefoldRepetition()?'repetition':'draw';
+  const {result,reason}=end;
 
   r.game.setHeader('White',r.members.w.display_name);
   r.game.setHeader('Black',r.members.b.display_name);
