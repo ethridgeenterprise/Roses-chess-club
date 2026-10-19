@@ -178,4 +178,81 @@ input{background:#eee9de}
     box-shadow:inset 0 0 0 3px #c5a168,inset 0 0 12px #c99b4955;
   }
 }
-</style></head><body><div class="wrap"><header><h1>♔ Rose's Chess Club ♚</h1><p>Where every queen deserves her castle</p></header><section class="panel" id="lobby"><div class="actions"><button id="create">Create private game</button><span>or join:</span><input id="code" placeholder="ROOM CODE" maxlength="6" aria-label="Room code"><button id="join">Join game</button></div><p class="small">Share your room code with your opponent. White moves first.</p></section><section class="panel hidden" id="roomPanel"><div class="actions"><span>Room <span class="room" id="roomId"></span></span><button class="secondary" id="copy">Copy invite link</button></div><p class="small" id="identity"></p><p id="toast" role="status"></p></section><section class="panel hidden" id="game"><div class="clocks" aria-label="Game clocks"><div class="clock" id="clock-w">White 30:00</div><div class="clock" id="clock-b">Black 30:00</div></div><div id="status" aria-live="polite"></div><div id="board" role="grid" aria-label="Chessboard"></div><div id="promotion" class="hidden"><p>Promote your pawn to:</p><div class="actions"><button data-p="q">♛ Queen</button><button data-p="r">♜ Rook</button><button data-p="b">♝ Bishop</button><button data-p="n">♞ Knight</button></div></div><div class="actions"><button class="secondary" id="restart">New game</button><button class="secondary" id="resign">Resign</button><span class="small">Tap a piece, then its destination.</span></div><p class="small">Moves</p><div id="moves"></div></section><p class="footer">Made for Robert & Rose • No ads, no accounts</p></div><script src="/socket.io/socket.io.js"></script><script src="/app.js"></script></body></html>
+
+/* Ninety-second move clocks and phone layout */
+.wrap,.panel{min-width:0}
+#board{
+  width:100%;
+  max-width:640px;
+  min-width:0;
+  grid-template-columns:repeat(8,minmax(0,1fr));
+  grid-template-rows:repeat(8,minmax(0,1fr));
+  gap:0;
+}
+.square{
+  min-width:0;
+  min-height:0;
+  width:100%;
+  height:100%;
+  aspect-ratio:auto;
+}
+.square.light,.square.dark{
+  border:1px solid #26303e;
+}
+#board{container-type:inline-size}
+.chess-piece{
+  max-width:100%;
+  font-size:clamp(18px,9cqw,68px);
+  line-height:1;
+  transform:none;
+}
+.clocks{
+  padding:10px;
+  gap:10px;
+  border:2px solid #766b5b;
+  border-radius:16px;
+  background:linear-gradient(#554e44,#302d28);
+  box-shadow:0 4px 0 #171714;
+  margin-bottom:8px;
+}
+.clock{
+  min-width:0;
+  border-radius:5px;
+  background:#171b16;
+  color:#c6cfaf;
+  border:3px inset #686859;
+}
+.clock.running{
+  background:#d9dfc5;
+  color:#20271c;
+  border-color:#a5af90;
+}
+.clock-note{
+  text-align:center;
+  font-size:13px;
+  color:#c9c1b4;
+  margin:8px 0;
+}
+.scores{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:6px 20px;
+  font-size:14px;
+  margin:12px 0;
+  text-align:center;
+}
+.actions>*{min-width:0;max-width:100%}
+#identity,#status,#moves{overflow-wrap:anywhere}
+@media(max-width:600px){
+  .wrap{padding:8px}
+  #game{padding:6px}
+  #board{border-width:4px;margin:12px auto}
+  .clocks{padding:6px;gap:6px}
+  .clock{
+    padding:10px 3px;
+    font-size:clamp(16px,4.5vw,25px);
+    max-width:none;
+  }
+}
+</style></head><body><div class="wrap"><header><h1>♔ Rose's Chess Club ♚</h1><p>Where every queen deserves her castle</p></header><section class="panel" id="lobby"><div class="actions"><button id="create">Create private game</button><span>or join:</span><input id="code" placeholder="ROOM CODE" maxlength="6" aria-label="Room code"><button id="join">Join game</button></div><p class="small">Share your room code with your opponent. White moves first.</p></section><section class="panel hidden" id="roomPanel"><div class="actions"><span>Room <span class="room" id="roomId"></span></span><button class="secondary" id="copy">Copy invite link</button></div><p class="small" id="identity"></p><p id="toast" role="status"></p></section><section class="panel hidden" id="game"><div class="clocks" aria-label="Game clocks"><div class="clock" id="clock-w">White 01:30</div><div class="clock" id="clock-b">Black 01:30</div></div><p class="clock-note">90 seconds per move · resets each turn</p><div class="scores" aria-label="Room scores"><div id="score-w">White: 0 wins · 0 losses · 0 draws</div><div id="score-b">Black: 0 wins · 0 losses · 0 draws</div></div><div id="status" aria-live="polite"></div><div id="board" role="grid" aria-label="Chessboard"></div><div id="promotion" class="hidden"><p>Promote your pawn to:</p><div class="actions"><button data-p="q">♛ Queen</button><button data-p="r">♜ Rook</button><button data-p="b">♝ Bishop</button><button data-p="n">♞ Knight</button></div></div><div class="actions"><button class="secondary" id="restart">New game</button><button class="secondary" id="resign">Resign</button><span class="small">Tap a piece, then its destination.</span></div><p class="small">Moves</p><div id="moves"></div></section><p class="footer">Made for Robert & Rose • No ads, no accounts</p></div><script src="/socket.io/socket.io.js"></script><script src="/app.js"></script></body></html>

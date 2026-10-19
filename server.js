@@ -8,7 +8,7 @@ const app=express();
 const http=createServer(app);
 const io=new Server(http);
 const rooms=new Map();
-const GAME_TIME=30*60*1000;
+const GAME_TIME=90*1000;
 app.use(express.static('public'));
 const safeRoom=s=>typeof s==='string'&&/^[A-Z0-9]{6}$/.test(s);
 
@@ -22,14 +22,30 @@ function settle(r){
     r.since=null;
   }
 }
+function recordResult(r){
+  r.scores??={w:{wins:0,losses:0,draws:0},b:{wins:0,losses:0,draws:0}};
+  if(r.resultRecorded)return;
+  const loser=r.timeout||r.resigned||
+    (r.game.isCheckmate()?r.game.turn():null);
+  if(loser){
+    const winner=loser==='w'?'b':'w';
+    r.scores[winner].wins++;
+    r.scores[loser].losses++;
+    r.resultRecorded=true;
+  }else if(r.game.isGameOver()){
+    r.scores.w.draws++;
+    r.scores.b.draws++;
+    r.resultRecorded=true;
+  }
+}
 function snapshot(r){
   settle(r);
-  const over=!!r.timeout||!!r.resigned||r.game.isGameOver();
+  const over=!!r.timeout||!!r.resigned||r.game.isGameOver();recordResult(r);
   return {
     fen:r.game.fen(),history:r.game.history({verbose:true}),
     turn:r.game.turn(),over,check:r.game.isCheck(),
     checkmate:r.game.isCheckmate(),draw:r.game.isDraw(),
-    timeout:r.timeout,resigned:r.resigned||null,
+    timeout:r.timeout,resigned:r.resigned||null,scores:r.scores,
     players:{w:!!r.players.w,b:!!r.players.b},
     clock:{...r.remaining,running:!over&&r.since!==null?r.game.turn():null}
   };
@@ -85,7 +101,7 @@ io.on('connection',socket=>{
     try{
       const move=r.game.move({from,to,promotion:promotion||'q'});
       if(!move)return ack({ok:false,error:'Illegal move'});
-      r.since=r.game.isGameOver()?null:Date.now();
+      r.remaining={w:GAME_TIME,b:GAME_TIME};r.since=r.game.isGameOver()?null:Date.now();
       ack({ok:true});
       emit(id);
     }catch{
@@ -113,7 +129,7 @@ io.on('connection',socket=>{
   socket.on('restart',(_,ack)=>{
     const id=socket.data.room,r=rooms.get(id);
     if(!r||r.sockets[socket.data.color]!==socket.id)return ack({ok:false});
-    r.game.reset();
+    settle(r);recordResult(r);r.game.reset();r.resultRecorded=false;
     r.remaining={w:GAME_TIME,b:GAME_TIME};
     r.timeout=null;r.resigned=null;
     r.since=r.players.b?Date.now():null;

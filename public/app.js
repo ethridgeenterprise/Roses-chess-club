@@ -10,7 +10,16 @@ function paint(){if(!state)return;const board=$('board');board.innerHTML='';cons
 figure.className='chess-piece';
 figure.textContent=p?pieces[(p===p.toUpperCase()?'w':'b')+p.toLowerCase()]:'';
 figure.setAttribute('aria-hidden','true');
-b.append(figure);b.setAttribute('aria-label',`${sq} ${p||'empty'}`);b.onclick=()=>tap(sq);board.append(b)}paintClocks();let status=state.over?(state.checkmate?`${state.turn==='w'?'Black':'White'} wins by checkmate!`:'Game drawn or ended.'):state.turn===color?'Your turn':`Waiting for ${state.turn==='w'?'White':'Black'}`;if(state.timeout)status=`${state.timeout==='w'?'White':'Black'} ran out of time — ${state.timeout==='w'?'Black':'White'} wins!`;if(state.resigned)status=`${state.resigned==='w'?'White':'Black'} resigned — ${state.resigned==='w'?'Black':'White'} wins!`;$('resign').disabled=state.over||!state.players.b;if(state.check&&!state.over)status+=' — Check!';if(!state.players.b)status='Waiting for second player to join';$('status').textContent=status;$('moves').textContent=state.history.map((m,i)=>(i%2===0?`${Math.floor(i/2)+1}. `:'')+m.san).join('   ')}
+b.append(figure);b.setAttribute('aria-label',`${sq} ${p||'empty'}`);b.onclick=()=>tap(sq);board.append(b)}paintClocks();
+if(state.scores){
+  for(const side of ['w','b']){
+    const score=state.scores[side];
+    document.getElementById('score-'+side).textContent=
+      (side==='w'?'White':'Black')+': '+
+      score.wins+' wins · '+score.losses+' losses · '+score.draws+' draws';
+  }
+}
+let status=state.over?(state.checkmate?`${state.turn==='w'?'Black':'White'} wins by checkmate!`:'Game drawn or ended.'):state.turn===color?'Your turn':`Waiting for ${state.turn==='w'?'White':'Black'}`;if(state.timeout)status=`${state.timeout==='w'?'White':'Black'} ran out of time — ${state.timeout==='w'?'Black':'White'} wins!`;if(state.resigned)status=`${state.resigned==='w'?'White':'Black'} resigned — ${state.resigned==='w'?'Black':'White'} wins!`;$('resign').disabled=state.over||!state.players.b;if(state.check&&!state.over)status+=' — Check!';if(!state.players.b)status='Waiting for second player to join';$('status').textContent=status;$('moves').textContent=state.history.map((m,i)=>(i%2===0?`${Math.floor(i/2)+1}. `:'')+m.san).join('   ')}
 function legalTarget(from,to){if(from===to)return false;const p=pieceAt(from),dest=pieceAt(to);if(!p)return false;const mine=p===p.toUpperCase()?'w':'b';if(dest&&(dest===dest.toUpperCase()?'w':'b')===mine)return false;return true}
 function tap(sq){if(!state||state.over||state.turn!==color||!state.players.b)return;const p=pieceAt(sq),mine=p&&(p===p.toUpperCase()?'w':'b')===color;if(!selected){if(mine){selected=sq;paint()}return}if(selected===sq){selected=null;paint();return}if(mine){selected=sq;paint();return}const from=selected;selected=null;const pawn=pieceAt(from)?.toLowerCase()==='p';if(pawn&&(sq[1]==='1'||sq[1]==='8')){pending={from,to:sq};$('promotion').classList.remove('hidden');paint();return}sendMove({from,to:sq,promotion:'q'})}
 function sendMove(move){socket.emit('move',move,r=>{if(!r.ok)toast(r.error||'Move not allowed');else toast('')})}
@@ -33,7 +42,7 @@ function paintClocks(){
       Math.floor(seconds/60).toString().padStart(2,'0')+':'+
       (seconds%60).toString().padStart(2,'0');
     el.classList.toggle('running',running);
-    el.classList.toggle('low-time',remaining<60000);
+    el.classList.toggle('low-time',remaining<15000);
   }
 }
 setInterval(paintClocks,200);
