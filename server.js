@@ -1,3 +1,4 @@
+import {saveFinishedGame,tracked,playerError} from './results.js';
 import {installPresence} from './presence.js';
 import express from 'express';
 import {createServer} from 'node:http';
@@ -43,12 +44,12 @@ function recordResult(r){
 }
 function snapshot(r){
   settle(r);
-  const over=!!r.timeout||!!r.resigned||r.game.isGameOver();recordResult(r);
+  const over=!!r.timeout||!!r.resigned||r.game.isGameOver();recordResult(r);saveFinishedGame(r,io);
   return {
     fen:r.game.fen(),history:r.game.history({verbose:true}),
     turn:r.game.turn(),over,check:r.game.isCheck(),
     checkmate:r.game.isCheckmate(),draw:r.game.isDraw(),
-    timeout:r.timeout,resigned:r.resigned||null,scores:r.scores,
+    timeout:r.timeout,resigned:r.resigned||null,scores:r.scores,tracked:tracked(r),saved:!!r.saved,
     players:{w:!!r.players.w,b:!!r.players.b},
     clock:{...r.remaining,running:!over&&r.since!==null?r.game.turn():null}
   };
@@ -62,6 +63,8 @@ io.on('connection',socket=>{
     const token=crypto.randomBytes(24).toString('hex');
     rooms.set(id,{
       game:new Chess(),players:{w:token,b:null},sockets:{},
+      gameId:crypto.randomUUID(),roomCode:id,
+      members:{w:socket.data.clubMember?{...socket.data.clubMember}:null,b:null},
       created:Date.now(),remaining:{w:GAME_TIME,b:GAME_TIME},
       since:null,timeout:null
     });
@@ -74,9 +77,11 @@ io.on('connection',socket=>{
     let color=Object.entries(r.players).find(([,t])=>t&&t===token)?.[0];
     if(!color){
       if(r.players.b)return ack({ok:false,error:'Room is full. Use your original browser to rejoin.'});
+      if(r.members?.w&&socket.data.clubMember?.id===r.members.w.id)
+        return ack({ok:false,error:'Use a different player account for Black.'});
       color='b';
       token=crypto.randomBytes(24).toString('hex');
-      r.players.b=token;
+      r.players.b=token;r.members.b=socket.data.clubMember?{...socket.data.clubMember}:null;
       if(!r.timeout&&!r.game.isGameOver()&&r.since===null)r.since=Date.now();
     }
     if(socket.data.room&&socket.data.room!==id){
@@ -94,6 +99,7 @@ io.on('connection',socket=>{
   socket.on('move',({from,to,promotion},ack)=>{
     const id=socket.data.room,r=rooms.get(id);
     if(!r||r.sockets[socket.data.color]!==socket.id)return ack({ok:false,error:'Not seated'});
+    const identityError=playerError(r,socket);if(identityError)return ack({ok:false,error:identityError});
     if(!r.players.b)return ack({ok:false,error:'Waiting for second player'});
     settle(r);
     if(r.timeout||r.resigned||r.game.isGameOver()){
@@ -118,6 +124,7 @@ io.on('connection',socket=>{
     const color=socket.data.color;
     if(!r||r.sockets[color]!==socket.id)
       return ack({ok:false,error:'Not seated'});
+    const identityError=playerError(r,socket);if(identityError)return ack({ok:false,error:identityError});
     settle(r);
     if(!r.players.b||r.timeout||r.resigned||r.game.isGameOver()){
       emit(id);
@@ -132,7 +139,18 @@ io.on('connection',socket=>{
   socket.on('restart',(_,ack)=>{
     const id=socket.data.room,r=rooms.get(id);
     if(!r||r.sockets[socket.data.color]!==socket.id)return ack({ok:false});
-    settle(r);recordResult(r);r.game.reset();r.resultRecorded=false;
+    const identityError=playerError(r,socket);
+    if(identityError)return ack({ok:false,error:identityError});
+    settle(r);
+    if(!r.timeout&&!r.resigned&&!r.game.isGameOver())
+      return ack({ok:false,error:'Finish or resign the current game first.'});
+    recordResult(r);
+    saveFinishedGame(r,io);
+    if(tracked(r)&&!r.saved)
+      return ack({ok:false,error:'Wait for the result to save, then try New game again.'});
+    r.game.reset();r.resultRecorded=false;
+    r.gameId=crypto.randomUUID();
+    r.saved=false;r.saving=false;r.lastSaveAttempt=0;r.saveError=null;
     r.remaining={w:GAME_TIME,b:GAME_TIME};
     r.timeout=null;r.resigned=null;
     r.since=r.players.b?Date.now():null;
@@ -149,6 +167,7 @@ io.on('connection',socket=>{
 });
 setInterval(()=>{
   for(const [id,r] of rooms){
+    saveFinishedGame(r,io);
     if(r.since!==null){
       const previous=r.timeout;
       settle(r);

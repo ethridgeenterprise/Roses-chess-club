@@ -5,7 +5,7 @@ const key=id=>'aaron-chess-'+id;
 function toast(s){$('toast').textContent=s}function enter(id,t){socket.emit('join',{id,token:t},r=>{if(!r.ok){alert(r.error);return}room=r.id;color=r.color;token=r.token;localStorage.setItem(key(room),token);history.replaceState(null,'',`?room=${room}`);$('lobby').classList.add('hidden');$('roomPanel').classList.remove('hidden');$('game').classList.remove('hidden');$('roomId').textContent=room;$('identity').textContent=`You play ${color==='w'?'White':'Black'}. ${color==='w'?'Send Rose the invite link.':'You are ready to play!'}`;toast('Connected to chess room')})}
 $('create').onclick=()=>socket.emit('create',{},r=>enter(r.id,r.token));$('join').onclick=()=>enter($('code').value.trim().toUpperCase(),null);
 $('copy').onclick=async()=>{const url=`${location.origin}/?room=${room}`;try{await navigator.clipboard.writeText(url);toast('Invite link copied!')}catch{prompt('Copy this link:',url)}};
-$('restart').onclick=()=>{if(confirm('Start a new game? This resets the board for both players.'))socket.emit('restart',{},r=>{if(!r.ok)toast('Could not restart')})};
+$('restart').onclick=()=>{if(confirm('Start a new game? This resets the board for both players.'))socket.emit('restart',{},r=>{if(!r.ok)toast(r.error||'Could not restart')})};
 function pieceAt(sq){const file=sq.charCodeAt(0)-97,rank=8-Number(sq[1]);return state.fen.split(' ')[0].split('/')[rank].replace(/[1-8]/g,n=>' '.repeat(+n))[file].trim()}
 function paint(){if(!state)return;const board=$('board');board.innerHTML='';const ranks=color==='w'?[8,7,6,5,4,3,2,1]:[1,2,3,4,5,6,7,8],files=color==='w'?'abcdefgh':'hgfedcba';for(const rank of ranks)for(const file of files){const sq=file+rank,p=pieceAt(sq),b=document.createElement('button');b.className=`square ${(file.charCodeAt(0)-97+rank)%2===0?'light':'dark'} ${p?(p===p.toUpperCase()?'white':'black'):''}`;if(state.check&&p&&p.toLowerCase()==='k'&&(p===p.toUpperCase()?'w':'b')===state.turn)b.classList.add('in-check');if(state.history.length&&state.history.at(-1).to===sq)b.classList.add('last-destination');if(selected===sq)b.classList.add('selected');if(selected&&legalTarget(selected,sq))b.classList.add('target');if(state.history.length&&[state.history.at(-1).from,state.history.at(-1).to].includes(sq))b.classList.add('last');const figure=document.createElement('span');
 figure.className='chess-piece';
@@ -55,3 +55,8 @@ $('resign').onclick=()=>{
     });
   }
 };
+
+socket.on('gameSaved',result=>{
+  toast(result.ok?'Game saved to both player profiles.':result.error);
+  if(result.ok)window.dispatchEvent(new Event('clubProfileRefresh'));
+});

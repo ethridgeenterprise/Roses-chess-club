@@ -218,3 +218,14 @@ if (clubSocket) {
   });
 }
 onlineBox().textContent = 'Connecting to the club…';
+
+window.addEventListener('clubProfileRefresh',async()=>{
+  try{
+    if(!client)return;
+    const {data,error}=await client.auth.getSession();
+    if(error)throw error;
+    await showSession(data.session);
+  }catch(error){
+    message('Game saved. Refresh to reload your profile.');
+  }
+});
