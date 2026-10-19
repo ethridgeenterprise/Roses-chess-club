@@ -14,6 +14,7 @@ function lock(value) {
 async function showSession(session) {
   const version = ++renderVersion;
   currentUser = session?.user || null;
+  syncPresence(session);
   byId('accountForm').classList.toggle('hidden', !!currentUser);
   byId('profileForm').classList.toggle('hidden', !currentUser);
   if (!currentUser) {
@@ -151,3 +152,69 @@ initialize().catch(error => {
   message('Account services could not load. You can still play as a guest. ' +
     error.message);
 });
+
+
+// Verified online directory, using the existing game connection.
+let presenceSession = null;
+let presenceTimer;
+
+function onlineBox() {
+  let box = document.getElementById('clubOnlineList');
+  if (!box) {
+    const section = document.createElement('section');
+    section.className = 'panel';
+    const heading = document.createElement('h2');
+    heading.textContent = 'Players online';
+    heading.style.marginTop = '0';
+    box = document.createElement('div');
+    box.id = 'clubOnlineList';
+    box.style.lineHeight = '1.8';
+    section.append(heading, box);
+    document.getElementById('accountPanel').after(section);
+  }
+  return box;
+}
+
+function syncPresence(session) {
+  presenceSession = session;
+  clearTimeout(presenceTimer);
+  if (!session) onlineBox().textContent = 'Log in to see club members online.';
+  presenceTimer = setTimeout(() => {
+    const socket = window.chessSocket;
+    if (!socket?.connected) return;
+    socket.emit('identify', {
+      accessToken: presenceSession?.access_token || null
+    }, result => {
+      if (!result?.ok && result?.error)
+        onlineBox().textContent = result.error;
+    });
+  }, 650);
+}
+
+const clubSocket = window.chessSocket;
+if (clubSocket) {
+  clubSocket.on('connect', () => syncPresence(presenceSession));
+  clubSocket.on('disconnect', () => {
+    onlineBox().textContent = 'Reconnecting to the club…';
+  });
+  clubSocket.on('clubOnline', members => {
+    const box = onlineBox();
+    box.replaceChildren();
+    if (!presenceSession) {
+      box.textContent = 'Log in to see club members online.';
+      return;
+    }
+    const icons = {
+      knight:'♞', king:'♚', queen:'♛',
+      rook:'♜', bishop:'♝', pawn:'♟'
+    };
+    if (!members.length) box.textContent = 'Checking online players…';
+    for (const member of members) {
+      const row = document.createElement('div');
+      row.textContent = (icons[member.avatar] || '♟') + ' ' +
+        member.name + ' — ' + (member.playing ? 'Playing' : 'Online');
+      box.append(row);
+    }
+  });
+}
+onlineBox().textContent = 'Connecting to the club…';

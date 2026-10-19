@@ -1,3 +1,4 @@
+import {installPresence} from './presence.js';
 import express from 'express';
 import {createServer} from 'node:http';
 import {Server} from 'socket.io';
@@ -8,6 +9,7 @@ const app=express();
 const http=createServer(app);
 const io=new Server(http);
 const rooms=new Map();
+installPresence(io, rooms);
 const GAME_TIME=15*60*1000;
 const INCREMENT=10*1000;
 app.use(express.static('public'));

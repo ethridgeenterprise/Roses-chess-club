@@ -1,4 +1,5 @@
 const socket=io(),$=id=>document.getElementById(id);let room='',color='',token='',state=null,selected=null,pending=null;
+window.chessSocket=socket;
 const pieces={wk:'♚',wq:'♛',wr:'♜',wb:'♝',wn:'♞',wp:'♟',bk:'♚',bq:'♛',br:'♜',bb:'♝',bn:'♞',bp:'♟'};
 const key=id=>'aaron-chess-'+id;
 function toast(s){$('toast').textContent=s}function enter(id,t){socket.emit('join',{id,token:t},r=>{if(!r.ok){alert(r.error);return}room=r.id;color=r.color;token=r.token;localStorage.setItem(key(room),token);history.replaceState(null,'',`?room=${room}`);$('lobby').classList.add('hidden');$('roomPanel').classList.remove('hidden');$('game').classList.remove('hidden');$('roomId').textContent=room;$('identity').textContent=`You play ${color==='w'?'White':'Black'}. ${color==='w'?'Send Rose the invite link.':'You are ready to play!'}`;toast('Connected to chess room')})}
