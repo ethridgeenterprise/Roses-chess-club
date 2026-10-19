@@ -8,7 +8,8 @@ const app=express();
 const http=createServer(app);
 const io=new Server(http);
 const rooms=new Map();
-const GAME_TIME=90*1000;
+const GAME_TIME=15*60*1000;
+const INCREMENT=10*1000;
 app.use(express.static('public'));
 const safeRoom=s=>typeof s==='string'&&/^[A-Z0-9]{6}$/.test(s);
 
@@ -101,7 +102,7 @@ io.on('connection',socket=>{
     try{
       const move=r.game.move({from,to,promotion:promotion||'q'});
       if(!move)return ack({ok:false,error:'Illegal move'});
-      r.remaining={w:GAME_TIME,b:GAME_TIME};r.since=r.game.isGameOver()?null:Date.now();
+      r.remaining[move.color]+=INCREMENT;r.since=r.game.isGameOver()?null:Date.now();
       ack({ok:true});
       emit(id);
     }catch{
