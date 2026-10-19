@@ -128,4 +128,54 @@ input{background:#eee9de}
     filter:none!important;
   }
 }
+
+/* Defined square borders and warm last-move beacon */
+.square{
+  border:1px solid #25344799;
+}
+.square.light{
+  border-top-color:#ffffffb3;
+  border-left-color:#ffffff99;
+  border-right-color:#56616f99;
+  border-bottom-color:#56616f99;
+}
+.square.dark{
+  border-top-color:#b5c3d080;
+  border-left-color:#b5c3d066;
+  border-right-color:#253447cc;
+  border-bottom-color:#253447cc;
+}
+.square.last{
+  box-shadow:inset 0 0 0 2px #b4986177;
+}
+@keyframes warm-move-beacon{
+  0%,100%{
+    box-shadow:inset 0 0 0 3px #b99157,
+               inset 0 0 8px 2px #c99b4933;
+  }
+  50%{
+    box-shadow:inset 0 0 0 3px #d6b276,
+               inset 0 0 15px 4px #c99b4966;
+  }
+}
+.square.last-destination:not(.in-check):not(.selected){
+  animation:warm-move-beacon 3.2s ease-in-out infinite;
+}
+.square.last-destination:not(.in-check):not(.selected)::before{
+  content:'';
+  position:absolute;
+  inset:5px;
+  border:1px solid #f0d3a080;
+  border-radius:5px;
+  pointer-events:none;
+}
+.square.selected{
+  box-shadow:inset 0 0 0 4px #6e531e;
+}
+@media(prefers-reduced-motion:reduce){
+  .square.last-destination:not(.in-check):not(.selected){
+    animation:none;
+    box-shadow:inset 0 0 0 3px #c5a168,inset 0 0 12px #c99b4955;
+  }
+}
 </style></head><body><div class="wrap"><header><h1>♔ Rose's Chess Club ♚</h1><p>Where every queen deserves her castle</p></header><section class="panel" id="lobby"><div class="actions"><button id="create">Create private game</button><span>or join:</span><input id="code" placeholder="ROOM CODE" maxlength="6" aria-label="Room code"><button id="join">Join game</button></div><p class="small">Share your room code with your opponent. White moves first.</p></section><section class="panel hidden" id="roomPanel"><div class="actions"><span>Room <span class="room" id="roomId"></span></span><button class="secondary" id="copy">Copy invite link</button></div><p class="small" id="identity"></p><p id="toast" role="status"></p></section><section class="panel hidden" id="game"><div class="clocks" aria-label="Game clocks"><div class="clock" id="clock-w">White 30:00</div><div class="clock" id="clock-b">Black 30:00</div></div><div id="status" aria-live="polite"></div><div id="board" role="grid" aria-label="Chessboard"></div><div id="promotion" class="hidden"><p>Promote your pawn to:</p><div class="actions"><button data-p="q">♛ Queen</button><button data-p="r">♜ Rook</button><button data-p="b">♝ Bishop</button><button data-p="n">♞ Knight</button></div></div><div class="actions"><button class="secondary" id="restart">New game</button><button class="secondary" id="resign">Resign</button><span class="small">Tap a piece, then its destination.</span></div><p class="small">Moves</p><div id="moves"></div></section><p class="footer">Made for Robert & Rose • No ads, no accounts</p></div><script src="/socket.io/socket.io.js"></script><script src="/app.js"></script></body></html>
