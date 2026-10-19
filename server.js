@@ -13,7 +13,7 @@ app.use(express.static('public'));
 const safeRoom=s=>typeof s==='string'&&/^[A-Z0-9]{6}$/.test(s);
 
 function settle(r){
-  if(r.since===null||r.timeout||r.game.isGameOver())return;
+  if(r.since===null||r.timeout||r.resigned||r.game.isGameOver())return;
   const now=Date.now(),side=r.game.turn();
   r.remaining[side]=Math.max(0,r.remaining[side]-(now-r.since));
   r.since=now;
@@ -24,12 +24,12 @@ function settle(r){
 }
 function snapshot(r){
   settle(r);
-  const over=!!r.timeout||r.game.isGameOver();
+  const over=!!r.timeout||!!r.resigned||r.game.isGameOver();
   return {
     fen:r.game.fen(),history:r.game.history({verbose:true}),
     turn:r.game.turn(),over,check:r.game.isCheck(),
     checkmate:r.game.isCheckmate(),draw:r.game.isDraw(),
-    timeout:r.timeout,
+    timeout:r.timeout,resigned:r.resigned||null,
     players:{w:!!r.players.w,b:!!r.players.b},
     clock:{...r.remaining,running:!over&&r.since!==null?r.game.turn():null}
   };
@@ -77,7 +77,7 @@ io.on('connection',socket=>{
     if(!r||r.sockets[socket.data.color]!==socket.id)return ack({ok:false,error:'Not seated'});
     if(!r.players.b)return ack({ok:false,error:'Waiting for second player'});
     settle(r);
-    if(r.timeout||r.game.isGameOver()){
+    if(r.timeout||r.resigned||r.game.isGameOver()){
       emit(id);
       return ack({ok:false,error:'Game has ended'});
     }
@@ -93,12 +93,29 @@ io.on('connection',socket=>{
       emit(id);
     }
   });
+  
+  socket.on('resign',(_,ack)=>{
+    const id=socket.data.room,r=rooms.get(id);
+    const color=socket.data.color;
+    if(!r||r.sockets[color]!==socket.id)
+      return ack({ok:false,error:'Not seated'});
+    settle(r);
+    if(!r.players.b||r.timeout||r.resigned||r.game.isGameOver()){
+      emit(id);
+      return ack({ok:false,error:'No active game to resign'});
+    }
+    r.resigned=color;
+    r.since=null;
+    emit(id);
+    ack({ok:true});
+  });
+
   socket.on('restart',(_,ack)=>{
     const id=socket.data.room,r=rooms.get(id);
     if(!r||r.sockets[socket.data.color]!==socket.id)return ack({ok:false});
     r.game.reset();
     r.remaining={w:GAME_TIME,b:GAME_TIME};
-    r.timeout=null;
+    r.timeout=null;r.resigned=null;
     r.since=r.players.b?Date.now():null;
     emit(id);
     ack({ok:true});
