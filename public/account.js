@@ -25,7 +25,7 @@ async function showSession(session) {
 
   message('Loading your profile…');
   const {data, error} = await client.from('profiles')
-    .select('display_name,avatar,rating,wins,losses,draws')
+    .select('display_name,avatar,rating,wins,losses,draws,rated_games')
     .eq('id', currentUser.id).single();
   if (version !== renderVersion) return;
   if (error) {
@@ -39,9 +39,9 @@ async function showSession(session) {
   };
   message(avatars[data.avatar] + ' Signed in as ' + data.display_name);
   byId('memberStats').textContent =
-    'Club rating: ' + data.rating + ' (ratings not active yet) · ' +
+    'Club rating: ' + data.rating + (data.rated_games<20?' (provisional) · ':' · ') +
     data.wins + ' wins · ' + data.losses + ' losses · ' +
-    data.draws + ' draws';
+    data.draws + ' draws · ' + data.rated_games + ' rated games';
 }
 
 async function initialize() {

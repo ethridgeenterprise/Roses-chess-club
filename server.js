@@ -1,3 +1,4 @@
+import {installRated} from './rated.js';
 import {outcome,gameOver,installDraws} from './rules.js';
 import {saveFinishedGame,tracked,playerError} from './results.js';
 import {installPresence} from './presence.js';
@@ -48,7 +49,7 @@ function snapshot(r){
     fen:r.game.fen(),history:r.game.history({verbose:true}),
     turn:r.game.turn(),over,check:r.game.isCheck(),
     checkmate:r.game.isCheckmate(),draw:outcome(r)?.result==='1/2-1/2',outcome:outcome(r),drawOffer:r.drawOffer||null,
-    timeout:r.timeout,resigned:r.resigned||null,scores:r.scores,tracked:tracked(r),saved:!!r.saved,
+    timeout:r.timeout,resigned:r.resigned||null,scores:r.scores,tracked:tracked(r),saved:!!r.saved,rated:!!r.rated,started:!!r.started,ready:r.ready||{},
     players:{w:!!r.players.w,b:!!r.players.b},
     clock:{...r.remaining,running:!over&&r.since!==null?r.game.turn():null}
   };
@@ -56,14 +57,18 @@ function snapshot(r){
 function emit(id){const r=rooms.get(id);if(r)io.to(id).emit('state',snapshot(r))}
 
 installDraws(io,rooms,{settle,emit,playerError});
+installRated(io,rooms,{settle,emit,playerError,gameOver});
 io.on('connection',socket=>{
-  socket.on('create',(_,ack)=>{
+  socket.on('create',(options,ack)=>{
+    if(options?.rated===true&&
+      (!socket.data.clubMember||!(socket.data.clubMemberExpires>Date.now())))
+      return ack({ok:false,error:'Log in and wait for your name under Players online first.'});
     let id;
     do{id=crypto.randomBytes(3).toString('hex').toUpperCase()}while(rooms.has(id));
     const token=crypto.randomBytes(24).toString('hex');
     rooms.set(id,{
       game:new Chess(),players:{w:token,b:null},sockets:{},
-      gameId:crypto.randomUUID(),roomCode:id,
+      gameId:crypto.randomUUID(),roomCode:id,rated:options?.rated===true,started:options?.rated!==true,ready:{},
       members:{w:socket.data.clubMember?{...socket.data.clubMember}:null,b:null},
       created:Date.now(),remaining:{w:GAME_TIME,b:GAME_TIME},
       since:null,timeout:null
@@ -76,13 +81,16 @@ io.on('connection',socket=>{
     const r=rooms.get(id);
     let color=Object.entries(r.players).find(([,t])=>t&&t===token)?.[0];
     if(!color){
+      if(r.rated&&(!socket.data.clubMember||
+        !(socket.data.clubMemberExpires>Date.now())))
+        return ack({ok:false,error:'Log in, wait for your online name, then open the invite again.'});
       if(r.players.b)return ack({ok:false,error:'Room is full. Use your original browser to rejoin.'});
       if(r.members?.w&&socket.data.clubMember?.id===r.members.w.id)
         return ack({ok:false,error:'Use a different player account for Black.'});
       color='b';
       token=crypto.randomBytes(24).toString('hex');
       r.players.b=token;r.members.b=socket.data.clubMember?{...socket.data.clubMember}:null;
-      if(!r.timeout&&!gameOver(r)&&r.since===null)r.since=Date.now();
+      if(!r.timeout&&!gameOver(r)&&r.since===null&&(!r.rated||r.started))r.since=Date.now();
     }
     if(socket.data.room&&socket.data.room!==id){
       const old=rooms.get(socket.data.room);
@@ -100,7 +108,7 @@ io.on('connection',socket=>{
     const id=socket.data.room,r=rooms.get(id);
     if(!r||r.sockets[socket.data.color]!==socket.id)return ack({ok:false,error:'Not seated'});
     const identityError=playerError(r,socket);if(identityError)return ack({ok:false,error:identityError});
-    if(!r.players.b)return ack({ok:false,error:'Waiting for second player'});
+    if(r.rated&&!r.started)return ack({ok:false,error:'Both players must confirm the rated game first.'});if(!r.players.b)return ack({ok:false,error:'Waiting for second player'});
     settle(r);
     if(r.timeout||r.resigned||gameOver(r)){
       emit(id);
@@ -126,7 +134,7 @@ io.on('connection',socket=>{
       return ack({ok:false,error:'Not seated'});
     const identityError=playerError(r,socket);if(identityError)return ack({ok:false,error:identityError});
     settle(r);
-    if(!r.players.b||r.timeout||r.resigned||gameOver(r)){
+    if(!r.players.b||(r.rated&&!r.started)||r.timeout||r.resigned||gameOver(r)){
       emit(id);
       return ack({ok:false,error:'No active game to resign'});
     }
@@ -153,7 +161,7 @@ io.on('connection',socket=>{
     r.saved=false;r.saving=false;r.lastSaveAttempt=0;r.saveError=null;
     r.remaining={w:GAME_TIME,b:GAME_TIME};
     r.timeout=null;r.resigned=null;
-    r.since=r.players.b?Date.now():null;
+    r.started=!r.rated;r.ready={};r.since=r.players.b&&!r.rated?Date.now():null;
     emit(id);
     ack({ok:true});
   });

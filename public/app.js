@@ -3,7 +3,12 @@ window.chessSocket=socket;
 const pieces={wk:'♚',wq:'♛',wr:'♜',wb:'♝',wn:'♞',wp:'♟',bk:'♚',bq:'♛',br:'♜',bb:'♝',bn:'♞',bp:'♟'};
 const key=id=>'aaron-chess-'+id;
 function toast(s){$('toast').textContent=s}function enter(id,t){socket.emit('join',{id,token:t},r=>{if(!r.ok){alert(r.error);return}room=r.id;color=r.color;token=r.token;localStorage.setItem(key(room),token);history.replaceState(null,'',`?room=${room}`);$('lobby').classList.add('hidden');$('roomPanel').classList.remove('hidden');$('game').classList.remove('hidden');$('roomId').textContent=room;$('identity').textContent=`You play ${color==='w'?'White':'Black'}. ${color==='w'?'Send Rose the invite link.':'You are ready to play!'}`;toast('Connected to chess room')})}
-$('create').onclick=()=>socket.emit('create',{},r=>enter(r.id,r.token));$('join').onclick=()=>enter($('code').value.trim().toUpperCase(),null);
+$('create').onclick=()=>socket.emit('create',{
+      rated:document.getElementById('gameMode')?.value==='rated'
+    },r=>{
+      if(!r.ok){alert(r.error||'Could not create game');return}
+      enter(r.id,r.token)
+    });$('join').onclick=()=>enter($('code').value.trim().toUpperCase(),null);
 $('copy').onclick=async()=>{const url=`${location.origin}/?room=${room}`;try{await navigator.clipboard.writeText(url);toast('Invite link copied!')}catch{prompt('Copy this link:',url)}};
 $('restart').onclick=()=>{if(confirm('Start a new game? This resets the board for both players.'))socket.emit('restart',{},r=>{if(!r.ok)toast(r.error||'Could not restart')})};
 function pieceAt(sq){const file=sq.charCodeAt(0)-97,rank=8-Number(sq[1]);return state.fen.split(' ')[0].split('/')[rank].replace(/[1-8]/g,n=>' '.repeat(+n))[file].trim()}

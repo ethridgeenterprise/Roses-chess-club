@@ -21,7 +21,7 @@ export function tracked(r){
 }
 
 export function saveFinishedGame(r,io){
-  if(!tracked(r)||r.saved||r.saving)return;
+  if(!tracked(r)||r.saved||r.saving||(r.rated&&!r.started))return;
   const end=outcome(r);
   if(!end)return;
   if(Date.now()-(r.lastSaveAttempt||0)<5000)return;
@@ -36,6 +36,7 @@ export function saveFinishedGame(r,io){
   const gameId=r.gameId;
   const payload={
     p_game_id:gameId,
+    p_rated:r.rated===true,
     p_white:r.members.w.id,
     p_black:r.members.b.id,
     p_result:result,
