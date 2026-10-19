@@ -65,4 +65,67 @@ input{background:#eee9de}
   0%,100%{background-color:#ae4242}
   50%{background-color:#d78b83}
 }
+
+/* Sculpted pieces and contrasting board */
+#board{
+  border:8px solid #4d535b;
+  box-shadow:0 2px 0 #9299a2,0 8px 0 #282c32,0 18px 32px #0008;
+}
+.square{
+  border:1px solid #20293666;
+  overflow:visible;
+}
+.square.light{background:#e5e7e9}
+.square.dark{background:#687b90}
+.square.selected{background:#dbc779}
+.square.target:after{
+  background:#183e57b3;
+  border:1px solid #ffffff80;
+}
+.square.last{box-shadow:inset 0 0 0 3px #d6b853}
+.square.white,.square.black{
+  text-shadow:none;
+  -webkit-text-stroke:0;
+}
+.chess-piece{
+  display:block;
+  pointer-events:none;
+  position:relative;
+  z-index:1;
+  line-height:1.12;
+  transform:translateY(-2px);
+}
+.square.white .chess-piece{
+  color:#fff;
+  background:linear-gradient(115deg,
+    #fff 12%,#fff 27%,#dedede 43%,#fff 53%,#b8bcc2 76%,#f1f2f4 92%);
+  background-clip:text;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  -webkit-text-stroke:0.7px #555d66;
+  filter:
+    drop-shadow(1px 1px 0 #989fa8)
+    drop-shadow(1px 2px 0 #737b85)
+    drop-shadow(1px 3px 2px #0009);
+}
+.square.black .chess-piece{
+  color:#111;
+  background:linear-gradient(115deg,
+    #747b86 0%,#343b46 22%,#11151b 43%,#505965 51%,#171b22 65%,#050709 90%);
+  background-clip:text;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  -webkit-text-stroke:0.7px #080b10;
+  filter:
+    drop-shadow(0 -1px 0 #a8afba)
+    drop-shadow(1px 2px 0 #050709)
+    drop-shadow(1px 3px 2px #0009);
+}
+@media(forced-colors:active){
+  .chess-piece{
+    background:none!important;
+    -webkit-text-fill-color:currentColor!important;
+    filter:none!important;
+  }
+}
 </style></head><body><div class="wrap"><header><h1>♔ Rose's Chess Club ♚</h1><p>Where every queen deserves her castle</p></header><section class="panel" id="lobby"><div class="actions"><button id="create">Create private game</button><span>or join:</span><input id="code" placeholder="ROOM CODE" maxlength="6" aria-label="Room code"><button id="join">Join game</button></div><p class="small">Share your room code with your opponent. White moves first.</p></section><section class="panel hidden" id="roomPanel"><div class="actions"><span>Room <span class="room" id="roomId"></span></span><button class="secondary" id="copy">Copy invite link</button></div><p class="small" id="identity"></p><p id="toast" role="status"></p></section><section class="panel hidden" id="game"><div class="clocks" aria-label="Game clocks"><div class="clock" id="clock-w">White 30:00</div><div class="clock" id="clock-b">Black 30:00</div></div><div id="status" aria-live="polite"></div><div id="board" role="grid" aria-label="Chessboard"></div><div id="promotion" class="hidden"><p>Promote your pawn to:</p><div class="actions"><button data-p="q">♛ Queen</button><button data-p="r">♜ Rook</button><button data-p="b">♝ Bishop</button><button data-p="n">♞ Knight</button></div></div><div class="actions"><button class="secondary" id="restart">New game</button><button class="secondary" id="resign">Resign</button><span class="small">Tap a piece, then its destination.</span></div><p class="small">Moves</p><div id="moves"></div></section><p class="footer">Made for Robert & Rose • No ads, no accounts</p></div><script src="/socket.io/socket.io.js"></script><script src="/app.js"></script></body></html>
