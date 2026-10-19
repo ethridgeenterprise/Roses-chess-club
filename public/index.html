@@ -33,4 +33,36 @@
 @media(prefers-reduced-motion:reduce){
   .square.in-check{animation:none;background:#d83838;outline:4px solid #fff;outline-offset:-4px}
 }
-</style></head><body><div class="wrap"><header><h1>♔ Rose's Chess Club ♚</h1><p>Where every queen deserves her castle</p></header><section class="panel" id="lobby"><div class="actions"><button id="create">Create private game</button><span>or join:</span><input id="code" placeholder="ROOM CODE" maxlength="6" aria-label="Room code"><button id="join">Join game</button></div><p class="small">Share your room code with your opponent. White moves first.</p></section><section class="panel hidden" id="roomPanel"><div class="actions"><span>Room <span class="room" id="roomId"></span></span><button class="secondary" id="copy">Copy invite link</button></div><p class="small" id="identity"></p><p id="toast" role="status"></p></section><section class="panel hidden" id="game"><div id="status" aria-live="polite"></div><div id="board" role="grid" aria-label="Chessboard"></div><div id="promotion" class="hidden"><p>Promote your pawn to:</p><div class="actions"><button data-p="q">♛ Queen</button><button data-p="r">♜ Rook</button><button data-p="b">♝ Bishop</button><button data-p="n">♞ Knight</button></div></div><div class="actions"><button class="secondary" id="restart">New game</button><span class="small">Tap a piece, then its destination.</span></div><p class="small">Moves</p><div id="moves"></div></section><p class="footer">Made for Robert & Rose • No ads, no accounts</p></div><script src="/socket.io/socket.io.js"></script><script src="/app.js"></script></body></html>
+
+/* Muted club colors and clocks */
+body{background:radial-gradient(ellipse at top,#45413b,#201f1d 80%);color:#eeeae2}
+h1,.room{color:#ded1b8}
+header p,.small{color:#c9c1b4}
+.panel{background:#2d2b28ee;border-color:#605a50}
+button{background:#c4b69c;color:#211f1b;border-color:#8c8272}
+button.secondary{background:#48443e;color:#f1ede5}
+input{background:#eee9de}
+#board{border-color:#686052}
+.square.light{background:#ddd8c9}
+.square.dark{background:#8d9385}
+.square.selected{background:#d1c17e}
+.square.last{box-shadow:inset 0 0 0 4px #8d793b88}
+.square.target:after{background:#334d45a8}
+#toast{color:#e3d2aa}
+.footer{color:#aaa396}
+.clocks{display:flex;justify-content:center;gap:12px;margin:4px 0 16px}
+.clock{
+  flex:1;max-width:260px;padding:12px 8px;
+  background:#222321;color:#c7c7c0;border:2px solid #5f6259;
+  border-radius:10px;text-align:center;
+  font:700 clamp(18px,4.8vw,28px) ui-monospace,monospace;
+  font-variant-numeric:tabular-nums;
+}
+.clock.running{background:#e5e3d8;color:#20231f;border-color:#c6ceae}
+.clock.low-time{color:#e58e88}
+.clock.running.low-time{color:#9d2020}
+@keyframes king-check{
+  0%,100%{background-color:#ae4242}
+  50%{background-color:#d78b83}
+}
+</style></head><body><div class="wrap"><header><h1>♔ Rose's Chess Club ♚</h1><p>Where every queen deserves her castle</p></header><section class="panel" id="lobby"><div class="actions"><button id="create">Create private game</button><span>or join:</span><input id="code" placeholder="ROOM CODE" maxlength="6" aria-label="Room code"><button id="join">Join game</button></div><p class="small">Share your room code with your opponent. White moves first.</p></section><section class="panel hidden" id="roomPanel"><div class="actions"><span>Room <span class="room" id="roomId"></span></span><button class="secondary" id="copy">Copy invite link</button></div><p class="small" id="identity"></p><p id="toast" role="status"></p></section><section class="panel hidden" id="game"><div class="clocks" aria-label="Game clocks"><div class="clock" id="clock-w">White 30:00</div><div class="clock" id="clock-b">Black 30:00</div></div><div id="status" aria-live="polite"></div><div id="board" role="grid" aria-label="Chessboard"></div><div id="promotion" class="hidden"><p>Promote your pawn to:</p><div class="actions"><button data-p="q">♛ Queen</button><button data-p="r">♜ Rook</button><button data-p="b">♝ Bishop</button><button data-p="n">♞ Knight</button></div></div><div class="actions"><button class="secondary" id="restart">New game</button><span class="small">Tap a piece, then its destination.</span></div><p class="small">Moves</p><div id="moves"></div></section><p class="footer">Made for Robert & Rose • No ads, no accounts</p></div><script src="/socket.io/socket.io.js"></script><script src="/app.js"></script></body></html>
