@@ -213,6 +213,19 @@ if (clubSocket) {
       const row = document.createElement('div');
       row.textContent = (icons[member.avatar] || '♟') + ' ' +
         member.name + ' — ' + (member.playing ? 'Playing' : 'Online');
+
+      if (member.id !== currentUser?.id && !member.playing) {
+        const challenge = document.createElement('button');
+        challenge.type = 'button';
+        challenge.className = 'secondary';
+        challenge.textContent = 'Challenge';
+        challenge.setAttribute('aria-label', 'Challenge ' + member.name);
+        challenge.style.cssText = 'margin-left:12px;padding:6px 10px';
+        challenge.onclick = () => {
+          window.sendClubChallenge(member.id, member.name);
+        };
+        row.append(challenge);
+      }
       box.append(row);
     }
   });

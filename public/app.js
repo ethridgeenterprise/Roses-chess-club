@@ -65,3 +65,10 @@ socket.on('gameSaved',result=>{
   toast(result.ok?'Game saved to both player profiles.':result.error);
   if(result.ok)window.dispatchEvent(new Event('clubProfileRefresh'));
 });
+
+
+// Join accepted club challenges through the existing game flow.
+window.joinClubRoom = function(id, seatToken) {
+  if (typeof id !== 'string' || !/^[A-Z0-9]{6}$/.test(id)) return;
+  enter(id, seatToken || localStorage.getItem(key(id)));
+};

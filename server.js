@@ -1,3 +1,4 @@
+import {installChallenges} from './challenges.js';
 import {installLeaderboard} from './leaderboard.js';
 import {installRated} from './rated.js';
 import {outcome,gameOver,installDraws} from './rules.js';
@@ -15,6 +16,32 @@ const io=new Server(http);
 const rooms=new Map();
 installLeaderboard(app);
 installPresence(io, rooms);
+
+installChallenges(io, rooms, ({from, to, rated}) => {
+  let id;
+  do {
+    id = crypto.randomBytes(3).toString('hex').toUpperCase();
+  } while (rooms.has(id));
+  const token = crypto.randomBytes(24).toString('hex');
+  rooms.set(id, {
+    game:new Chess(),
+    players:{w:token,b:null},
+    sockets:{},
+    gameId:crypto.randomUUID(),
+    roomCode:id,
+    rated,
+    started:!rated,
+    ready:{},
+    members:{w:{...from},b:null},
+    challengeAllowed:{w:from.id,b:to.id},
+    created:Date.now(),
+    remaining:{w:GAME_TIME,b:GAME_TIME},
+    since:null,
+    timeout:null
+  });
+  return {id,token};
+});
+
 const GAME_TIME=15*60*1000;
 const INCREMENT=10*1000;
 app.use(express.static('public'));
@@ -82,6 +109,15 @@ io.on('connection',socket=>{
     if(!safeRoom(id)||!rooms.has(id))return ack({ok:false,error:'Room not found'});
     const r=rooms.get(id);
     let color=Object.entries(r.players).find(([,t])=>t&&t===token)?.[0];
+
+    if(r.challengeAllowed){
+      const member=socket.data.clubMember;
+      const expected=r.challengeAllowed[color || 'b'];
+      if(!member || member.id!==expected ||
+          !(socket.data.clubMemberExpires>Date.now()))
+        return ack({ok:false,error:'This challenge is reserved for its invited players. Please sign in with the correct account.'});
+    }
+
     if(!color){
       if(r.rated&&(!socket.data.clubMember||
         !(socket.data.clubMemberExpires>Date.now())))
