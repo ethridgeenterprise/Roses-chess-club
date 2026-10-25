@@ -1,3 +1,4 @@
+import {installLeaderboard} from './leaderboard.js';
 import {installRated} from './rated.js';
 import {outcome,gameOver,installDraws} from './rules.js';
 import {saveFinishedGame,tracked,playerError} from './results.js';
@@ -12,6 +13,7 @@ const app=express();
 const http=createServer(app);
 const io=new Server(http);
 const rooms=new Map();
+installLeaderboard(app);
 installPresence(io, rooms);
 const GAME_TIME=15*60*1000;
 const INCREMENT=10*1000;
