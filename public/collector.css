@@ -1,0 +1,25 @@
+/* Rose's Chess Club — Collector's Edition */
+#board {
+  border: 10px ridge #66351d;
+  border-radius: 5px;
+  box-shadow: 0 0 0 3px #281409,
+              0 12px 30px #0009;
+}
+.square.light {
+  background: linear-gradient(135deg,#eed6a9,#d9b783);
+}
+.square.dark {
+  background: linear-gradient(135deg,#986440,#754527);
+}
+.square.white .chess-piece {
+  color: #e4bc7d;
+  -webkit-text-fill-color: #e4bc7d;
+  -webkit-text-stroke: .7px #684123;
+  text-shadow: 1px 2px 2px #54351c;
+}
+.square.black .chess-piece {
+  color: #17100d;
+  -webkit-text-fill-color: #17100d;
+  -webkit-text-stroke: .6px #70503a;
+  text-shadow: 1px 2px 2px #000;
+}
