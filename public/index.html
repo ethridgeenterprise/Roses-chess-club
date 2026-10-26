@@ -255,6 +255,31 @@ input{background:#eee9de}
     max-width:none;
   }
 }
+
+/* Rose's Chess Club — crisp, high-contrast pieces */
+.square.white .chess-piece,
+.square.black .chess-piece {
+  background: none;
+  -webkit-background-clip: initial;
+  background-clip: initial;
+  -webkit-text-fill-color: currentColor;
+  filter: none;
+  text-shadow: none;
+  transform: none;
+  font-family: 'DejaVu Sans', 'Segoe UI Symbol', serif;
+  font-weight: 400;
+  font-size: clamp(22px, 10cqw, 76px);
+  line-height: 1;
+}
+.square.white .chess-piece {
+  color: #fffdf4;
+  -webkit-text-stroke: 0.6px #252525;
+}
+.square.black .chess-piece {
+  color: #111820;
+  -webkit-text-stroke: 0.3px #e4e9ee;
+}
+
 </style></head><body><div class="wrap"><header><h1>♔ Rose's Chess Club ♚</h1><p>Where every queen deserves her castle</p></header>
 <section class="panel" id="accountPanel">
   <h2 style="margin-top:0">Club membership</h2>
