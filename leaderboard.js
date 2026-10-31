@@ -17,7 +17,7 @@ export function installLeaderboard(app) {
       pending = (async () => {
         if (!db) throw new Error('Database unavailable');
         const {data, error} = await db.from('profiles')
-          .select('display_name,avatar,country_code,rating,rated_games')
+          .select('display_name,avatar,avatar_path,country_code,rating,rated_games')
           .gt('rated_games', 0)
           .order('rating', {ascending:false})
           .order('display_name', {ascending:true})
@@ -28,6 +28,7 @@ export function installLeaderboard(app) {
         cached = data.map(player => ({
           name: player.display_name,
           avatar: player.avatar,
+          avatar_path: player.avatar_path || null,
           country_code: player.country_code || null,
           rating: player.rating,
           ratedGames: player.rated_games

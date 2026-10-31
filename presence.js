@@ -23,6 +23,7 @@ export function installPresence(io, rooms) {
         id:member.id,
         name:member.display_name,
         avatar:member.avatar,
+        avatar_path:member.avatar_path || null,
         country_code:member.country_code || null,
         playing:playing || !!existing?.playing
       });
@@ -64,7 +65,7 @@ export function installPresence(io, rooms) {
         const {data:auth, error:authError} = await db.auth.getUser(token);
         if (authError || !auth.user) throw new Error('Please log in again.');
         const {data:profile, error} = await db.from('profiles')
-          .select('id,display_name,avatar,country_code')
+          .select('id,display_name,avatar,avatar_path,country_code')
           .eq('id', auth.user.id).single();
         if (error || !profile) throw new Error('Player profile could not load.');
         if (current !== version || !socket.connected) return ack({ok:false});

@@ -1,5 +1,6 @@
 (async () => {
   const {countryBadge, countryName} = await import('/countries.js');
+  const {avatarElement} = await import('/avatars.js');
   const section = document.createElement('section');
   section.className = 'panel';
   section.setAttribute('aria-labelledby', 'leaderboardHeading');
@@ -75,13 +76,14 @@
         row.title = countryName(player.country_code);
         const values = [
           rank,
-          (icons[player.avatar] || '♟') + ' ' + countryBadge(player.country_code) + player.name,
+          countryBadge(player.country_code) + player.name,
           player.rating + (player.ratedGames < 20 ? ' (P)' : ''),
           player.ratedGames
         ];
-        for (const value of values) {
+        for (const [column,value] of values.entries()) {
           const cell = row.insertCell();
-          cell.textContent = String(value);
+          if(column === 1) cell.append(avatarElement(player));
+          cell.append(document.createTextNode(String(value)));
           cell.style.cssText =
             'padding:10px 6px;border-top:1px solid #605a50;overflow-wrap:anywhere';
         }

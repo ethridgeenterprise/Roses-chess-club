@@ -1,3 +1,4 @@
+import {avatarElement, refreshAvatarPreview, installAvatarControls} from './avatars.js';
 import {countries, countryBadge, countryName} from './countries.js';
 
 const countryField = document.createElement('p');
@@ -39,6 +40,7 @@ async function showSession(session) {
   byId('accountForm').classList.toggle('hidden', !!currentUser);
   byId('profileForm').classList.toggle('hidden', !currentUser);
   if (!currentUser) {
+    refreshAvatarPreview({}, null);
     message('Log in to your club profile, or play as a guest below.');
     byId('accountPassword').value = '';
     return;
@@ -46,13 +48,14 @@ async function showSession(session) {
 
   message('Loading your profile…');
   const {data, error} = await client.from('profiles')
-    .select('display_name,avatar,country_code,rating,wins,losses,draws,rated_games')
+    .select('display_name,avatar,avatar_path,country_code,rating,wins,losses,draws,rated_games')
     .eq('id', currentUser.id).single();
   if (version !== renderVersion) return;
   if (error) {
     message('Signed in, but the profile could not load: ' + error.message);
     return;
   }
+  refreshAvatarPreview(data, currentUser.id);
   byId('playerName').value = data.display_name;
   byId('playerAvatar').value = data.avatar;
   byId('playerCountry').value = data.country_code || '';
@@ -74,6 +77,12 @@ async function initialize() {
     'https://blvwmyhxomhjbksnrqzy.supabase.co',
     'sb_publishable_oG0HIPDTRKBBYVvDuTICJA_NTf9FSY5'
   );
+
+  installAvatarControls(client, () => currentUser, async () => {
+    const {data,error} = await client.auth.getSession();
+    if(error) throw error;
+    await showSession(data.session);
+  });
 
   byId('accountForm').onsubmit = async event => {
     event.preventDefault();
@@ -239,9 +248,11 @@ function attachClubPresence(){
     if (!members.length) box.textContent = 'Checking online players…';
     for (const member of members) {
       const row = document.createElement('div');
-      row.textContent = (icons[member.avatar] || '♟') + ' ' +
+      row.append(avatarElement(member), document.createTextNode(
         countryBadge(member.country_code) + member.name + ' — ' +
-        (member.playing ? 'Playing' : 'Online');
+        (member.playing ? 'Playing' : 'Online')
+      ));
+      row.style.padding = '5px 0';
       row.title = countryName(member.country_code);
 
       if (member.id !== currentUser?.id && !member.playing) {
