@@ -1,3 +1,24 @@
+import {countries, countryBadge, countryName} from './countries.js';
+
+const countryField = document.createElement('p');
+const countryLabel = document.createElement('label');
+countryLabel.htmlFor = 'playerCountry';
+countryLabel.textContent = 'Country or territory (optional)';
+const countrySelect = document.createElement('select');
+countrySelect.id = 'playerCountry';
+countrySelect.style.cssText =
+  'font:inherit;padding:10px;width:100%;max-width:100%;margin-top:6px';
+countrySelect.append(new Option('No flag / prefer not to say', ''));
+for(const country of countries){
+  countrySelect.append(new Option(country.name + ' (' + country.code + ')', country.code));
+}
+const countryHelp = document.createElement('span');
+countryHelp.className = 'small';
+countryHelp.textContent = 'Your selection is shown beside your player name.';
+countryLabel.append(document.createElement('br'), countrySelect);
+countryField.append(countryLabel, document.createElement('br'), countryHelp);
+document.getElementById('playerAvatar').closest('p').after(countryField);
+
 
 const byId = id => document.getElementById(id);
 const message = text => { byId('accountMessage').textContent = text; };
@@ -25,7 +46,7 @@ async function showSession(session) {
 
   message('Loading your profile…');
   const {data, error} = await client.from('profiles')
-    .select('display_name,avatar,rating,wins,losses,draws,rated_games')
+    .select('display_name,avatar,country_code,rating,wins,losses,draws,rated_games')
     .eq('id', currentUser.id).single();
   if (version !== renderVersion) return;
   if (error) {
@@ -34,10 +55,11 @@ async function showSession(session) {
   }
   byId('playerName').value = data.display_name;
   byId('playerAvatar').value = data.avatar;
+  byId('playerCountry').value = data.country_code || '';
   const avatars = {
     knight:'♞', king:'♚', queen:'♛', rook:'♜', bishop:'♝', pawn:'♟'
   };
-  message(avatars[data.avatar] + ' Signed in as ' + data.display_name);
+  message(avatars[data.avatar] + ' Signed in as ' + countryBadge(data.country_code) + data.display_name);
   byId('memberStats').textContent =
     'Club rating: ' + data.rating + (data.rated_games<20?' (provisional) · ':' · ') +
     data.wins + ' wins · ' + data.losses + ' losses · ' +
@@ -80,7 +102,7 @@ async function initialize() {
         email: byId('accountEmail').value.trim(),
         password: byId('accountPassword').value,
         options: {
-          emailRedirectTo: 'https://roses-chess-club-1.onrender.com/'
+          emailRedirectTo: 'https://loveforchess.onrender.com/'
         }
       });
       if (error) throw error;
@@ -109,7 +131,8 @@ async function initialize() {
     try {
       const {data, error} = await client.from('profiles').update({
         display_name: name,
-        avatar: byId('playerAvatar').value
+        avatar: byId('playerAvatar').value,
+        country_code: byId('playerCountry').value || null
       }).eq('id', currentUser.id).select('id').single();
       if (error) throw error;
       if (!data) throw new Error('Profile was not saved.');
@@ -191,8 +214,13 @@ function syncPresence(session) {
   }, 650);
 }
 
-const clubSocket = window.chessSocket;
-if (clubSocket) {
+function attachClubPresence(){
+  const clubSocket = window.chessSocket;
+  if(!clubSocket){
+    setTimeout(attachClubPresence, 100);
+    return;
+  }
+  if (clubSocket) {
   clubSocket.on('connect', () => syncPresence(presenceSession));
   clubSocket.on('disconnect', () => {
     onlineBox().textContent = 'Reconnecting to the club…';
@@ -212,7 +240,9 @@ if (clubSocket) {
     for (const member of members) {
       const row = document.createElement('div');
       row.textContent = (icons[member.avatar] || '♟') + ' ' +
-        member.name + ' — ' + (member.playing ? 'Playing' : 'Online');
+        countryBadge(member.country_code) + member.name + ' — ' +
+        (member.playing ? 'Playing' : 'Online');
+      row.title = countryName(member.country_code);
 
       if (member.id !== currentUser?.id && !member.playing) {
         const challenge = document.createElement('button');
@@ -230,7 +260,9 @@ if (clubSocket) {
     }
   });
 }
+}
 onlineBox().textContent = 'Connecting to the club…';
+attachClubPresence();
 
 window.addEventListener('clubProfileRefresh',async()=>{
   try{
