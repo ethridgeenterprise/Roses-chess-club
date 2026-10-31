@@ -340,6 +340,32 @@ input{background:#eee9de}
     animation:none;
   }
 }
+
+/* Dark board frame and softly tinted move indicators */
+#board{
+  border:4px solid #3b291f;
+  border-radius:3px;
+  background:#3b291f;
+  box-shadow:0 2px 0 #78563b,0 8px 24px #0006;
+}
+#board .markers .marker.club-selected-fill{
+  fill:#fff200;
+  fill-opacity:.18;
+  stroke:none;
+  animation:rose-selection-pulse 2.4s ease-in-out infinite;
+}
+#board .markers .marker.club-moved-fill{
+  fill:#ffcf40;
+  fill-opacity:.14;
+  stroke:none;
+  animation:rose-move-pulse 3s ease-in-out infinite;
+}
+@media(prefers-reduced-motion:reduce){
+  #board .markers .marker.club-selected-fill,
+  #board .markers .marker.club-moved-fill{
+    animation:none;
+  }
+}
 </style>
 <link rel="stylesheet" href="/vendor/cm-chessboard/assets/chessboard.css">
 <link rel="stylesheet" href="/vendor/cm-chessboard/assets/extensions/markers/markers.css">
