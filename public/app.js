@@ -1,8 +1,61 @@
+import {Chessboard, BORDER_TYPE} from "/vendor/cm-chessboard/src/Chessboard.js";
+import {Markers, MARKER_TYPE} from "/vendor/cm-chessboard/src/extensions/markers/Markers.js";
+
+let clubBoard = null;
+const checkMarker = {class:"club-check-marker", slice:"markerSquare"};
+
+function renderCmBoard(){
+  if(!state || document.getElementById('game').classList.contains('hidden')) return;
+  const orientation = color === 'b' ? 'b' : 'w';
+  if(!clubBoard){
+    clubBoard = new Chessboard(document.getElementById('board'), {
+      position:state.fen,
+      orientation,
+      assetsUrl:"/vendor/cm-chessboard/assets/",
+      style:{
+        cssClass:"chessboard-js",
+        borderType:BORDER_TYPE.thin,
+        showCoordinates:true,
+        pieces:{file:"pieces/standard.svg"},
+        animationDuration:150
+      },
+      extensions:[{class:Markers,props:{autoMarkers:null}}]
+    });
+    document.getElementById('board').addEventListener('click', event=>{
+      const square = event.target.closest('[data-square]')?.getAttribute('data-square');
+      if(square && /^[a-h][1-8]$/.test(square)) tap(square);
+    });
+  }
+  if(clubBoard.getOrientation() !== orientation){
+    clubBoard.setOrientation(orientation, false);
+  }
+  clubBoard.setPosition(state.fen, false);
+  clubBoard.removeMarkers();
+  const last = state.history.at(-1);
+  if(last){
+    clubBoard.addMarker(MARKER_TYPE.frame, last.from);
+    clubBoard.addMarker(MARKER_TYPE.frame, last.to);
+  }
+  if(selected) clubBoard.addMarker(MARKER_TYPE.framePrimary, selected);
+  if(state.check){
+    for(const file of 'abcdefgh'){
+      for(let rank=1;rank<=8;rank++){
+        const square=file+rank;
+        const piece=pieceAt(square);
+        if(piece && piece.toLowerCase()==='k' &&
+           (piece===piece.toUpperCase()?'w':'b')===state.turn){
+          clubBoard.addMarker(checkMarker,square);
+        }
+      }
+    }
+  }
+}
+
 const socket=io(),$=id=>document.getElementById(id);let room='',color='',token='',state=null,selected=null,pending=null;
 window.chessSocket=socket;
 const pieces={wk:'♚',wq:'♛',wr:'♜',wb:'♝',wn:'♞',wp:'♟',bk:'♚',bq:'♛',br:'♜',bb:'♝',bn:'♞',bp:'♟'};
 const key=id=>'aaron-chess-'+id;
-function toast(s){$('toast').textContent=s}function enter(id,t){socket.emit('join',{id,token:t},r=>{if(!r.ok){alert(r.error);return}room=r.id;color=r.color;token=r.token;localStorage.setItem(key(room),token);history.replaceState(null,'',`?room=${room}`);$('lobby').classList.add('hidden');$('roomPanel').classList.remove('hidden');$('game').classList.remove('hidden');$('roomId').textContent=room;$('identity').textContent=`You play ${color==='w'?'White':'Black'}. ${color==='w'?'Send Rose the invite link.':'You are ready to play!'}`;toast('Connected to chess room')})}
+function toast(s){$('toast').textContent=s}function enter(id,t){socket.emit('join',{id,token:t},r=>{if(!r.ok){alert(r.error);return}room=r.id;color=r.color;token=r.token;localStorage.setItem(key(room),token);history.replaceState(null,'',`?room=${room}`);$('lobby').classList.add('hidden');$('roomPanel').classList.remove('hidden');$('game').classList.remove('hidden');$('roomId').textContent=room;$('identity').textContent=`You play ${color==='w'?'White':'Black'}. ${color==='w'?'Send Rose the invite link.':'You are ready to play!'}`;toast('Connected to chess room');if(state)paint()})}
 $('create').onclick=()=>socket.emit('create',{
       rated:document.getElementById('gameMode')?.value==='rated'
     },r=>{
@@ -12,11 +65,7 @@ $('create').onclick=()=>socket.emit('create',{
 $('copy').onclick=async()=>{const url=`${location.origin}/?room=${room}`;try{await navigator.clipboard.writeText(url);toast('Invite link copied!')}catch{prompt('Copy this link:',url)}};
 $('restart').onclick=()=>{if(confirm('Start a new game? This resets the board for both players.'))socket.emit('restart',{},r=>{if(!r.ok)toast(r.error||'Could not restart')})};
 function pieceAt(sq){const file=sq.charCodeAt(0)-97,rank=8-Number(sq[1]);return state.fen.split(' ')[0].split('/')[rank].replace(/[1-8]/g,n=>' '.repeat(+n))[file].trim()}
-function paint(){if(!state)return;const board=$('board');board.innerHTML='';const ranks=color==='w'?[8,7,6,5,4,3,2,1]:[1,2,3,4,5,6,7,8],files=color==='w'?'abcdefgh':'hgfedcba';for(const rank of ranks)for(const file of files){const sq=file+rank,p=pieceAt(sq),b=document.createElement('button');b.className=`square ${(file.charCodeAt(0)-97+rank)%2===0?'light':'dark'} ${p?(p===p.toUpperCase()?'white':'black'):''}`;if(state.check&&p&&p.toLowerCase()==='k'&&(p===p.toUpperCase()?'w':'b')===state.turn)b.classList.add('in-check');if(state.history.length&&state.history.at(-1).to===sq)b.classList.add('last-destination');if(selected===sq)b.classList.add('selected');if(selected&&legalTarget(selected,sq))b.classList.add('target');if(state.history.length&&[state.history.at(-1).from,state.history.at(-1).to].includes(sq))b.classList.add('last');const figure=document.createElement('span');
-figure.className='chess-piece';
-figure.textContent=p?pieces[(p===p.toUpperCase()?'w':'b')+p.toLowerCase()]:'';
-figure.setAttribute('aria-hidden','true');
-b.append(figure);b.setAttribute('aria-label',`${sq} ${p||'empty'}`);b.onclick=()=>tap(sq);board.append(b)}paintClocks();
+function paint(){if(!state)return;renderCmBoard();paintClocks();
 if(state.scores){
   for(const side of ['w','b']){
     const score=state.scores[side];
