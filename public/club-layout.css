@@ -1,0 +1,87 @@
+/* Online-player sidebar */
+.wrap{
+  max-width:1160px;
+}
+#clubLayout{
+  display:grid;
+  grid-template-columns:250px minmax(0,1fr);
+  gap:18px;
+  align-items:start;
+}
+#clubMain,
+#clubSidebar{
+  min-width:0;
+}
+#clubSidebar{
+  position:sticky;
+  top:16px;
+}
+#clubSidebar .panel{
+  margin:12px 0;
+}
+#clubSidebar h2{
+  font-size:22px;
+}
+#clubOnlineList{
+  max-height:65vh;
+  overflow:auto;
+  overflow-wrap:anywhere;
+}
+#clubOnlineList button{
+  margin:6px 0 6px 8px !important;
+}
+@media(max-width:900px){
+  .wrap{
+    max-width:820px;
+  }
+  #clubLayout{
+    grid-template-columns:minmax(0,1fr);
+    gap:0;
+  }
+  #clubSidebar{
+    position:static;
+  }
+  #clubOnlineList{
+    max-height:240px;
+  }
+}
+
+/* Compact sidebar leaderboard */
+#clubLeaderboard h2{
+  font-size:21px;
+  margin-bottom:10px;
+}
+#clubLeaderboard th,
+#clubLeaderboard td{
+  padding:8px 4px !important;
+  font-size:13px;
+}
+#clubLeaderboard th:nth-child(4){
+  font-size:0;
+}
+#clubLeaderboard th:nth-child(4)::after{
+  content:'Games';
+  font-size:13px;
+}
+#clubLeaderboard td:nth-child(2){
+  min-width:75px;
+}
+#clubLeaderboard td:nth-child(2) > span{
+  width:30px !important;
+  height:30px !important;
+  margin-right:4px !important;
+}
+#clubLeaderboard button{
+  width:100%;
+  padding:9px;
+}
+@media(min-width:901px){
+  #clubSidebar{
+    max-height:calc(100dvh - 32px);
+    overflow:auto;
+    scrollbar-width:thin;
+  }
+  #clubOnlineList{
+    max-height:280px;
+  }
+}

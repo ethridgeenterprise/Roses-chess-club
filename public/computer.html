@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Play Computer · Rose's Chess Club</title>
+<link rel="stylesheet" href="/vendor/cm-chessboard/assets/chessboard.css">
+<link rel="stylesheet" href="/vendor/cm-chessboard/assets/extensions/markers/markers.css">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#201f1d;color:#eeeae2;font:17px system-ui,Arial,sans-serif}
+main{max-width:820px;margin:auto;padding:18px}
+h1{color:#ded1b8;font-family:Georgia,serif;text-align:center}
+.panel{padding:16px;background:#2d2b28;border:1px solid #605a50;border-radius:15px}
+.controls{display:flex;gap:12px;flex-wrap:wrap;align-items:end}
+label{display:grid;gap:6px}
+button,select{font:inherit;padding:11px;border:1px solid #8c8272;border-radius:8px}
+button{background:#c4b69c;color:#211f1b;font-weight:700;cursor:pointer}
+button:disabled{opacity:.5;cursor:wait}
+select{background:#eee9de;color:#211f1b}
+a{color:#f5d49a}
+.small{font-size:14px;color:#c9c1b4;line-height:1.5}
+#computerBoard{width:100%;max-width:640px;margin:16px auto}
+#computerStatus{text-align:center;font-size:21px;font-weight:700;min-height:54px}
+#computerMoves{max-height:100px;overflow:auto;line-height:1.7}
+.markers{pointer-events:none}
+#computerBoard .marker.practice-selected{
+  fill:none;stroke:#fff200;stroke-width:4px;
+  animation:selection-pulse 2.4s ease-in-out infinite
+}
+#computerBoard .marker.practice-last{
+  fill:none;stroke:#ffdf00;stroke-width:3px;
+  animation:move-pulse 3s ease-in-out infinite
+}
+#computerBoard .marker.practice-check{
+  fill:#ff1010;stroke:#ff1010;stroke-width:2px;
+  animation:check-pulse 1.2s ease-in-out infinite
+}
+@keyframes selection-pulse{0%,100%{opacity:1}50%{opacity:.85}}
+@keyframes move-pulse{0%,100%{opacity:1}50%{opacity:.8}}
+@keyframes check-pulse{0%,100%{opacity:.85}50%{opacity:.5}}
+@media(prefers-reduced-motion:reduce){
+  #computerBoard .marker{animation:none}
+  #computerBoard .practice-check{opacity:.65}
+}
+@media(max-width:600px){main{padding:8px}.panel{padding:8px}}
+</style>
+</head>
+<body>
+<main>
+<p><a href="/">← Back to the club</a></p>
+<h1>Play computer</h1>
+<section class="panel">
+<div class="controls">
+<label>Difficulty
+<select id="computerLevel">
+<option value="1">Easy</option>
+<option value="2" selected>Medium</option>
+<option value="3">Hard</option>
+</select></label>
+<label>Your pieces
+<select id="computerSide">
+<option value="w">White</option>
+<option value="b">Black</option>
+</select></label>
+<button id="computerNew" type="button">New practice game</button>
+</div>
+<p class="small">Practice only · No clock · No rating changes.
+Difficulty and color choices apply when you start a new game.</p>
+<p id="computerStatus" role="status" aria-live="polite">Loading board…</p>
+<button id="computerRetry" type="button" hidden>Retry computer move</button>
+<div id="computerBoard" aria-label="Practice chessboard"></div>
+<label>Promote pawns to
+<select id="computerPromotion">
+<option value="q">Queen</option>
+<option value="r">Rook</option>
+<option value="b">Bishop</option>
+<option value="n">Knight</option>
+</select></label>
+<p class="small">Tap your piece, then its destination.
+Choose a promotion piece before moving a pawn to the final rank.</p>
+<p>Moves</p>
+<div id="computerMoves"></div>
+<p class="small">This practice game stays in this tab. Closing or refreshing it resets the game.</p>
+</section>
+</main>
+<script type="module" src="/computer.js"></script>
+</body>
+</html>

@@ -32,7 +32,24 @@
   list.setAttribute('aria-label', 'Club leaderboard');
 
   section.append(heading, note, button, status, list);
-  document.getElementById('lobby').before(section);
+  section.id = 'clubLeaderboard';
+  function placeLeaderboard(){
+    const sidebar = document.getElementById('clubSidebar');
+    if(sidebar){
+      sidebar.append(section);
+      return true;
+    }
+    return false;
+  }
+  if(!placeLeaderboard()){
+    document.getElementById('lobby').before(section);
+    const observer = new MutationObserver(()=>{
+      if(placeLeaderboard()) observer.disconnect();
+    });
+    observer.observe(document.querySelector('.wrap'),{
+      childList:true,subtree:true
+    });
+  }
 
   const icons = {
     knight:'♞', king:'♚', queen:'♛',

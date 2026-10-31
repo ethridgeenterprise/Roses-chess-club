@@ -208,6 +208,7 @@ window.joinClubRoom = function(id, seatToken) {
 
 // club-support-scripts: initialize after chessSocket and joinClubRoom exist.
 for (const source of [
+  '/computer-link.js',
   '/draw-ui.js',
   '/rated-ui.js',
   '/leaderboard.js',

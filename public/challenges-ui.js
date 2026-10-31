@@ -12,7 +12,27 @@
   const controls = document.createElement('div');
   controls.className = 'actions';
   panel.append(heading, status, controls);
-  document.getElementById('lobby').before(panel);
+  panel.id = 'clubChallenges';
+  function placeChallenges(){
+    const sidebar = document.getElementById('clubSidebar');
+    if(!sidebar) return false;
+    const leaderboard = document.getElementById('clubLeaderboard');
+    if(leaderboard && leaderboard.parentElement === sidebar){
+      leaderboard.after(panel);
+    }else{
+      sidebar.append(panel);
+    }
+    return true;
+  }
+  if(!placeChallenges()){
+    document.getElementById('lobby').before(panel);
+    const observer = new MutationObserver(()=>{
+      if(placeChallenges()) observer.disconnect();
+    });
+    observer.observe(document.querySelector('.wrap'),{
+      childList:true,subtree:true
+    });
+  }
 
   let pendingId = null;
   let waiting = false;
