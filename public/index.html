@@ -300,7 +300,7 @@ input{background:#eee9de}
 /* Rose's clear selection, move and check indicators */
 #board .markers .marker.club-selected-marker{
   fill:none;
-  stroke:#ffdf00;
+  stroke:#fff200;
   stroke-width:4px;
   opacity:1;
   paint-order:stroke;
@@ -309,29 +309,29 @@ input{background:#eee9de}
 }
 #board .markers .marker.club-last-move-marker{
   fill:none;
-  stroke:#ffc247;
+  stroke:#ffdf00;
   stroke-width:3px;
   opacity:1;
   animation:rose-move-pulse 3s ease-in-out infinite;
 }
 #board .markers .marker.club-check-marker{
-  fill:#ff2525;
-  stroke:#a90000;
+  fill:#ff1010;
+  stroke:#ff1010;
   stroke-width:2px;
   opacity:.7;
   animation:rose-check-pulse 1.2s ease-in-out infinite;
 }
 @keyframes rose-selection-pulse{
   0%,100%{opacity:1}
-  50%{opacity:.65}
+  50%{opacity:.85}
 }
 @keyframes rose-move-pulse{
   0%,100%{opacity:1}
-  50%{opacity:.55}
+  50%{opacity:.8}
 }
 @keyframes rose-check-pulse{
-  0%,100%{opacity:.7}
-  50%{opacity:.3}
+  0%,100%{opacity:.85}
+  50%{opacity:.5}
 }
 @media(prefers-reduced-motion:reduce){
   #board .markers .marker.club-selected-marker,
