@@ -26,6 +26,43 @@ const message = text => { byId('accountMessage').textContent = text; };
 let client, currentUser = null, busy = false;
 let renderVersion = 0;
 
+let editingProfile = false;
+
+const compactAccountRow = document.createElement('div');
+compactAccountRow.className = 'actions hidden';
+compactAccountRow.style.cssText = 'gap:12px;justify-content:space-between';
+const compactIdentity = document.createElement('div');
+compactIdentity.style.cssText =
+  'display:flex;align-items:center;min-width:0;flex:1;overflow-wrap:anywhere';
+const compactActions = document.createElement('div');
+compactActions.className = 'actions';
+const editProfileButton = document.createElement('button');
+editProfileButton.type = 'button';
+editProfileButton.className = 'secondary';
+editProfileButton.textContent = 'Edit profile';
+editProfileButton.setAttribute('aria-controls','profileForm');
+editProfileButton.setAttribute('aria-expanded','false');
+compactActions.append(editProfileButton, byId('logout'));
+compactAccountRow.append(compactIdentity,compactActions);
+byId('profileForm').before(compactAccountRow);
+
+function updateProfileVisibility(){
+  const signedIn = !!currentUser;
+  compactAccountRow.classList.toggle('hidden',!signedIn);
+  byId('profileForm').classList.toggle('hidden',!signedIn || !editingProfile);
+  editProfileButton.textContent = editingProfile ? 'Close profile' : 'Edit profile';
+  editProfileButton.setAttribute('aria-expanded',String(signedIn && editingProfile));
+}
+
+editProfileButton.onclick = () => {
+  if(busy) return;
+  editingProfile = !editingProfile;
+  updateProfileVisibility();
+  if(editingProfile) byId('playerName').focus();
+};
+
+
+
 function lock(value) {
   busy = value;
   document.querySelectorAll(
@@ -35,10 +72,15 @@ function lock(value) {
 
 async function showSession(session) {
   const version = ++renderVersion;
-  currentUser = session?.user || null;
+  const nextUser = session?.user || null;
+  if(currentUser?.id !== nextUser?.id){
+    editingProfile = false;
+    compactIdentity.textContent = nextUser ? 'Signed in' : '';
+  }
+  currentUser = nextUser;
   syncPresence(session);
   byId('accountForm').classList.toggle('hidden', !!currentUser);
-  byId('profileForm').classList.toggle('hidden', !currentUser);
+  updateProfileVisibility();
   if (!currentUser) {
     refreshAvatarPreview({}, null);
     message('Log in to your club profile, or play as a guest below.');
@@ -56,6 +98,9 @@ async function showSession(session) {
     return;
   }
   refreshAvatarPreview(data, currentUser.id);
+  const playerLabel = document.createElement('span');
+  playerLabel.textContent = countryBadge(data.country_code) + data.display_name;
+  compactIdentity.replaceChildren(avatarElement(data,44),playerLabel);
   byId('playerName').value = data.display_name;
   byId('playerAvatar').value = data.avatar;
   byId('playerCountry').value = data.country_code || '';
@@ -148,6 +193,10 @@ async function initialize() {
       const {data: auth, error: sessionError} = await client.auth.getSession();
       if (sessionError) throw sessionError;
       await showSession(auth.session);
+      editingProfile = false;
+      updateProfileVisibility();
+      message('Profile saved.');
+      editProfileButton.focus();
     } catch (error) {
       message(error.message);
     } finally {
