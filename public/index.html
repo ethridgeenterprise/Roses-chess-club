@@ -296,6 +296,50 @@ input{background:#eee9de}
 @media(prefers-reduced-motion:reduce){
   #board .club-check-marker{animation:none}
 }
+
+/* Rose's clear selection, move and check indicators */
+#board .markers .marker.club-selected-marker{
+  fill:none;
+  stroke:#ffdf00;
+  stroke-width:4px;
+  opacity:1;
+  paint-order:stroke;
+  filter:drop-shadow(0 0 1px #191000);
+  animation:rose-selection-pulse 2.4s ease-in-out infinite;
+}
+#board .markers .marker.club-last-move-marker{
+  fill:none;
+  stroke:#ffc247;
+  stroke-width:3px;
+  opacity:1;
+  animation:rose-move-pulse 3s ease-in-out infinite;
+}
+#board .markers .marker.club-check-marker{
+  fill:#ff2525;
+  stroke:#a90000;
+  stroke-width:2px;
+  opacity:.7;
+  animation:rose-check-pulse 1.2s ease-in-out infinite;
+}
+@keyframes rose-selection-pulse{
+  0%,100%{opacity:1}
+  50%{opacity:.65}
+}
+@keyframes rose-move-pulse{
+  0%,100%{opacity:1}
+  50%{opacity:.55}
+}
+@keyframes rose-check-pulse{
+  0%,100%{opacity:.7}
+  50%{opacity:.3}
+}
+@media(prefers-reduced-motion:reduce){
+  #board .markers .marker.club-selected-marker,
+  #board .markers .marker.club-last-move-marker,
+  #board .markers .marker.club-check-marker{
+    animation:none;
+  }
+}
 </style>
 <link rel="stylesheet" href="/vendor/cm-chessboard/assets/chessboard.css">
 <link rel="stylesheet" href="/vendor/cm-chessboard/assets/extensions/markers/markers.css">

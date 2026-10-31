@@ -3,6 +3,8 @@ import {Markers, MARKER_TYPE} from "/vendor/cm-chessboard/src/extensions/markers
 
 let clubBoard = null;
 const checkMarker = {class:"club-check-marker", slice:"markerSquare"};
+const selectedMarker = {class:"club-selected-marker", slice:"markerFrame"};
+const lastMoveMarker = {class:"club-last-move-marker", slice:"markerFrame"};
 
 function renderCmBoard(){
   if(!state || document.getElementById('game').classList.contains('hidden')) return;
@@ -34,9 +36,9 @@ function renderCmBoard(){
   const last = state.history.at(-1);
   if(last){
     clubBoard.addMarker(MARKER_TYPE.frame, last.from);
-    clubBoard.addMarker(MARKER_TYPE.frame, last.to);
+    clubBoard.addMarker(lastMoveMarker, last.to);
   }
-  if(selected) clubBoard.addMarker(MARKER_TYPE.framePrimary, selected);
+  if(selected) clubBoard.addMarker(selectedMarker, selected);
   if(state.check){
     for(const file of 'abcdefgh'){
       for(let rank=1;rank<=8;rank++){
