@@ -18,5 +18,24 @@
   note.className = 'small';
   note.textContent = 'Easy, Medium, or Hard · Unrated · Opens in a new tab';
   section.append(heading,link,note);
+  section.id = 'clubPractice';
+  function placePractice(){
+    const sidebar = document.getElementById('clubSidebar');
+    if(!sidebar) return;
+    const challenges = document.getElementById('clubChallenges');
+    const leaderboard = document.getElementById('clubLeaderboard');
+    const anchor = challenges?.parentElement === sidebar ? challenges :
+      leaderboard?.parentElement === sidebar ? leaderboard : null;
+    if(anchor){
+      if(anchor.nextElementSibling !== section) anchor.after(section);
+    }else if(section.parentElement !== sidebar){
+      sidebar.append(section);
+    }
+  }
   document.getElementById('lobby').before(section);
+  const observer = new MutationObserver(placePractice);
+  observer.observe(document.querySelector('.wrap'),{
+    childList:true,subtree:true
+  });
+  placePractice();
 })();

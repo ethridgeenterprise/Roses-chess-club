@@ -251,7 +251,25 @@ function onlineBox() {
     box.id = 'clubOnlineList';
     box.style.lineHeight = '1.8';
     section.append(heading, box);
-    document.getElementById('accountPanel').after(section);
+    
+    const wrap = document.getElementById('accountPanel').closest('.wrap');
+    let sidebar = document.getElementById('clubSidebar');
+    if(!sidebar){
+      const layout = document.createElement('div');
+      layout.id = 'clubLayout';
+      sidebar = document.createElement('aside');
+      sidebar.id = 'clubSidebar';
+      sidebar.setAttribute('aria-label','Online players');
+      const main = document.createElement('div');
+      main.id = 'clubMain';
+      for(const child of [...wrap.children]){
+        if(child.tagName !== 'HEADER') main.append(child);
+      }
+      layout.append(sidebar,main);
+      wrap.append(layout);
+    }
+    sidebar.append(section);
+
   }
   return box;
 }
