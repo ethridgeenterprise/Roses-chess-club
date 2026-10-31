@@ -57,7 +57,89 @@ const socket=io(),$=id=>document.getElementById(id);let room='',color='',token='
 window.chessSocket=socket;
 const pieces={wk:'♚',wq:'♛',wr:'♜',wb:'♝',wn:'♞',wp:'♟',bk:'♚',bq:'♛',br:'♜',bb:'♝',bn:'♞',bp:'♟'};
 const key=id=>'aaron-chess-'+id;
-function toast(s){$('toast').textContent=s}function enter(id,t){socket.emit('join',{id,token:t},r=>{if(!r.ok){alert(r.error);return}room=r.id;color=r.color;token=r.token;localStorage.setItem(key(room),token);history.replaceState(null,'',`?room=${room}`);$('lobby').classList.add('hidden');$('roomPanel').classList.remove('hidden');$('game').classList.remove('hidden');$('roomId').textContent=room;$('identity').textContent=`You play ${color==='w'?'White':'Black'}. ${color==='w'?'Send Rose the invite link.':'You are ready to play!'}`;toast('Connected to chess room');if(state)paint()})}
+
+const lastRoomKey = 'club-last-room-v1';
+
+function savedRoom(){
+  try{
+    const id = localStorage.getItem(lastRoomKey);
+    return id && /^[A-Z0-9]{6}$/.test(id) &&
+      localStorage.getItem(key(id)) ? id : null;
+  }catch{return null}
+}
+
+function rememberRoom(id){
+  try{localStorage.setItem(lastRoomKey,id)}catch{}
+  updateResumeButton();
+}
+
+function forgetRoom(id){
+  try{
+    if(localStorage.getItem(lastRoomKey) === id){
+      localStorage.removeItem(lastRoomKey);
+    }
+  }catch{}
+  updateResumeButton();
+}
+
+const resumeBox = document.createElement('div');
+resumeBox.style.cssText = 'margin-bottom:16px';
+const resumeButton = document.createElement('button');
+resumeButton.type = 'button';
+resumeButton.textContent = 'Resume last game';
+resumeButton.style.cssText = 'padding:14px 20px;font-size:18px';
+const resumeStatus = document.createElement('p');
+resumeStatus.className = 'small';
+resumeStatus.setAttribute('role','status');
+resumeBox.append(resumeButton,resumeStatus);
+document.getElementById('lobby').prepend(resumeBox);
+
+function updateResumeButton(){
+  const id = savedRoom();
+  resumeBox.hidden = !id;
+  resumeButton.title = id ? 'Return to room ' + id : '';
+}
+
+resumeButton.onclick = () => {
+  const id = savedRoom();
+  if(!id){
+    updateResumeButton();
+    return;
+  }
+  if(!socket.connected){
+    resumeStatus.textContent = 'Reconnecting to the club. Please try again shortly.';
+    return;
+  }
+  const seatToken = localStorage.getItem(key(id));
+  if(!seatToken) return;
+  resumeButton.disabled = true;
+  resumeStatus.textContent = 'Opening your last game…';
+  const timer = setTimeout(()=>{
+    resumeButton.disabled = false;
+    resumeStatus.textContent = 'No response yet. Check your connection and try again.';
+  },12000);
+  enter(id,seatToken,(ok,error)=>{
+    clearTimeout(timer);
+    resumeButton.disabled = false;
+    if(ok){
+      resumeStatus.textContent = '';
+      return;
+    }
+    if(error === 'Room not found'){
+      forgetRoom(id);
+      alert('Your last game is no longer available. The server may have restarted. You can create a new game.');
+    }else{
+      resumeStatus.textContent = error ||
+        'Could not resume. If this was a challenge, log in and wait until your name appears online, then try again.';
+    }
+  });
+};
+
+updateResumeButton();
+window.addEventListener('storage',updateResumeButton);
+
+
+function toast(s){$('toast').textContent=s}function enter(id,t,onResult){socket.emit('join',{id,token:t},r=>{if(!r.ok){if(onResult)onResult(false,r.error);else alert(r.error);return}room=r.id;color=r.color;token=r.token;localStorage.setItem(key(room),token);rememberRoom(room);history.replaceState(null,'',`?room=${room}`);$('lobby').classList.add('hidden');$('roomPanel').classList.remove('hidden');$('game').classList.remove('hidden');$('roomId').textContent=room;$('identity').textContent=`You play ${color==='w'?'White':'Black'}. ${color==='w'?'Send Rose the invite link.':'You are ready to play!'}`;toast('Connected to chess room');if(state)paint();if(onResult)onResult(true)})}
 $('create').onclick=()=>socket.emit('create',{
       rated:document.getElementById('gameMode')?.value==='rated'
     },r=>{
@@ -81,7 +163,7 @@ function legalTarget(from,to){if(from===to)return false;const p=pieceAt(from),de
 function tap(sq){if(!state||state.over||state.turn!==color||!state.players.b)return;const p=pieceAt(sq),mine=p&&(p===p.toUpperCase()?'w':'b')===color;if(!selected){if(mine){selected=sq;paint()}return}if(selected===sq){selected=null;paint();return}if(mine){selected=sq;paint();return}const from=selected;selected=null;const pawn=pieceAt(from)?.toLowerCase()==='p';if(pawn&&(sq[1]==='1'||sq[1]==='8')){pending={from,to:sq};$('promotion').classList.remove('hidden');paint();return}sendMove({from,to:sq,promotion:'q'})}
 function sendMove(move){socket.emit('move',move,r=>{if(!r.ok)toast(r.error||'Move not allowed');else toast('')})}
 document.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{if(pending){sendMove({...pending,promotion:b.dataset.p});pending=null;$('promotion').classList.add('hidden')}});
-socket.on('state',s=>{state=s;selected=null;paint()});socket.on('presence',()=>toast('Opponent disconnected. Their seat is saved; they can rejoin.'));socket.on('connect',()=>{if(room)enter(room,token)});
+socket.on('state',s=>{state=s;selected=null;if(s.over&&room)forgetRoom(room);paint()});socket.on('presence',()=>toast('Opponent disconnected. Their seat is saved; they can rejoin.'));socket.on('connect',()=>{if(room)enter(room,token)});
 const invite=new URLSearchParams(location.search).get('room');if(invite&&/^[A-Z0-9]{6}$/i.test(invite)){const id=invite.toUpperCase();$('code').value=id;enter(id,localStorage.getItem(key(id)))}
 
 let clockReceivedAt=performance.now();
