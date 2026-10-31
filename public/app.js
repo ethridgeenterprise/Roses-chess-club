@@ -121,3 +121,19 @@ window.joinClubRoom = function(id, seatToken) {
   if (typeof id !== 'string' || !/^[A-Z0-9]{6}$/.test(id)) return;
   enter(id, seatToken || localStorage.getItem(key(id)));
 };
+
+// club-support-scripts: initialize after chessSocket and joinClubRoom exist.
+for (const source of [
+  '/draw-ui.js',
+  '/rated-ui.js',
+  '/leaderboard.js',
+  '/challenges-ui.js'
+]) {
+  await new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = source;
+    script.onload = resolve;
+    script.onerror = () => reject(new Error('Could not load ' + source));
+    document.body.append(script);
+  });
+}
