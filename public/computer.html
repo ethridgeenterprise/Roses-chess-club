@@ -54,6 +54,23 @@ a{color:#f5d49a}
   vector-effect: non-scaling-stroke;
 }
 </style>
+
+<style id="library-background">
+body {
+  background: #745743;
+  isolation: isolate;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(91,65,46,.60), rgba(65,44,32,.72)),
+    url('/rose-library.png') center / cover no-repeat;
+}
+</style>
 </head>
 <body>
 <main>

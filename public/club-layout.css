@@ -99,7 +99,7 @@ body::before{
   pointer-events:none;
   background:
     linear-gradient(rgba(91,65,46,.60),rgba(65,44,32,.72)),
-    url('/coffee-chess.png') center / cover no-repeat;
+    url('/rose-library.png') center / cover no-repeat;
 }
 .panel{
   background:rgba(43,33,26,.78);
@@ -120,7 +120,7 @@ header h1,header p{
 
 /* Coffee-cream foreground */
 .panel, header {
-  background: rgba(222, 197, 160, .35);
+  background: rgba(222, 197, 160, .50);
   color: #302319;
   border-color: #a0805e;
 }
