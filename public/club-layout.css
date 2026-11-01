@@ -246,3 +246,37 @@ header a:focus-visible {
     max-height: 180px;
   }
 }
+
+/* Larger, darker club text */
+body {
+  font-size: 18px;
+}
+.panel {
+  color: #120b06;
+}
+header h1, header p,
+.panel h2, .panel th,
+.panel .small, .panel .room,
+.panel .clock-note {
+  color: #211208;
+}
+.panel .small {
+  font-size: 15px;
+  line-height: 1.55;
+}
+#clubSidebar h2 {
+  font-size: 22px;
+}
+#clubLeaderboard th,
+#clubLeaderboard td {
+  font-size: 15px;
+}
+#clubLeaderboard th:nth-child(4)::after {
+  font-size: 15px;
+}
+.panel a, .panel #toast {
+  color: #3b1905;
+}
+.about-content {
+  font-size: 19px;
+}
