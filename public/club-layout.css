@@ -117,3 +117,54 @@ header h1,header p{
   color:#fff0dd;
   text-shadow:0 1px 3px #24170f;
 }
+
+/* Coffee-cream foreground */
+.panel, header {
+  background: rgba(222, 197, 160, .35);
+  color: #302319;
+  border-color: #a0805e;
+}
+header h1, header p {
+  color: #493321;
+  text-shadow: none;
+}
+.panel .small, .panel .room, .panel .clock-note {
+  color: #604933;
+}
+.panel a, .panel #toast {
+  color: #70401c;
+}
+
+/* Thin, visible black square outlines */
+#board .cm-chessboard .board .square {
+  stroke: #000;
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Stronger text contrast on the transparent tan panels */
+.panel {
+  color: #170e08;
+}
+header h1 {
+  color: #241307;
+  text-shadow: 0 1px 1px rgba(255, 241, 214, .45);
+}
+header p,
+.panel .small,
+.panel .room,
+.panel .clock-note {
+  color: #302014;
+}
+.panel .small {
+  font-weight: 500;
+}
+.panel h2,
+.panel th {
+  color: #241307;
+}
+.panel a,
+.panel #toast {
+  color: #542500;
+  font-weight: 600;
+}
