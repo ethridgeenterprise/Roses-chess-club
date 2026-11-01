@@ -5,6 +5,7 @@ import {Markers,MARKER_TYPE} from './vendor/cm-chessboard/src/extensions/markers
 const $ = id=>document.getElementById(id);
 const game = new Chess();
 const selectedMarker = {class:'practice-selected',slice:'markerFrame'};
+const recessedMarker = {class:'practice-recessed',slice:'markerSquare'};
 const lastMarker = {class:'practice-last',slice:'markerFrame'};
 const checkMarker = {class:'practice-check',slice:'markerSquare'};
 let human = 'w';
@@ -34,6 +35,7 @@ function paint(){
   const last = game.history({verbose:true}).at(-1);
   if(last){
     board.addMarker(MARKER_TYPE.frame,last.from);
+    board.addMarker(recessedMarker,last.to);
     board.addMarker(lastMarker,last.to);
   }
   if(selected) board.addMarker(selectedMarker,selected);

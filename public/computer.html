@@ -45,6 +45,15 @@ a{color:#f5d49a}
 }
 @media(max-width:600px){main{padding:8px}.panel{padding:8px}}
 </style>
+
+<style id="square-borders">
+.cm-chessboard .board .square {
+  stroke: #000;
+  stroke-width: 2px;
+  stroke-opacity: 1;
+  vector-effect: non-scaling-stroke;
+}
+</style>
 </head>
 <body>
 <main>
@@ -85,5 +94,40 @@ Choose a promotion piece before moving a pawn to the final rank.</p>
 </section>
 </main>
 <script type="module" src="/computer.js"></script>
+
+<style>
+#computerBoard .marker.practice-recessed {
+  fill: #000;
+  fill-opacity: 1;
+  stroke: none;
+  opacity: 1;
+  animation: none;
+  filter: url(#practice-recess);
+  pointer-events: none;
+}
+</style>
+<svg width="0" height="0" aria-hidden="true"
+     style="position:absolute;pointer-events:none">
+  <defs>
+    <filter id="practice-recess" x="0%" y="0%" width="100%" height="100%"
+            color-interpolation-filters="sRGB">
+      <feOffset in="SourceAlpha" dx="3" dy="3" result="down"/>
+      <feComposite in="SourceAlpha" in2="down" operator="out" result="topEdge"/>
+      <feGaussianBlur in="topEdge" stdDeviation="1" result="softTop"/>
+      <feFlood flood-color="#160b04" flood-opacity=".85"/>
+      <feComposite in2="softTop" operator="in" result="shadow"/>
+      <feOffset in="SourceAlpha" dx="-2" dy="-2" result="up"/>
+      <feComposite in="SourceAlpha" in2="up" operator="out" result="bottomEdge"/>
+      <feGaussianBlur in="bottomEdge" stdDeviation=".5" result="softBottom"/>
+      <feFlood flood-color="#fff3d6" flood-opacity=".8"/>
+      <feComposite in2="softBottom" operator="in" result="highlight"/>
+      <feMerge>
+        <feMergeNode in="shadow"/>
+        <feMergeNode in="highlight"/>
+      </feMerge>
+    </filter>
+  </defs>
+</svg>
+
 </body>
 </html>

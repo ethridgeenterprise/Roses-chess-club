@@ -168,3 +168,10 @@ header p,
   color: #542500;
   font-weight: 600;
 }
+
+#board .cm-chessboard .board .square {
+  stroke: #000;
+  stroke-width: 3px;
+  stroke-opacity: 1;
+  vector-effect: non-scaling-stroke;
+}
