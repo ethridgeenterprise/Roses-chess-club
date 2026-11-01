@@ -61,6 +61,7 @@ function renderCmBoard(){
 
 const socket=io(),$=id=>document.getElementById(id);let room='',color='',token='',state=null,selected=null,pending=null;
 window.chessSocket=socket;
+window.getClubGameContext = () => ({color,state});
 const pieces={wk:'♚',wq:'♛',wr:'♜',wb:'♝',wn:'♞',wp:'♟',bk:'♚',bq:'♛',br:'♜',bb:'♝',bn:'♞',bp:'♟'};
 const key=id=>'aaron-chess-'+id;
 
