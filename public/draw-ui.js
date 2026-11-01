@@ -38,6 +38,7 @@
   accept.hidden=true;decline.hidden=true;
 
   socket.on('state',s=>{
+    const color = window.getClubGameContext().color;
     const opponentOffer=s.drawOffer&&s.drawOffer!==color;
     offer.disabled=s.over||!s.players.b||!!s.drawOffer;
     claim.disabled=s.over||!s.players.b||s.turn!==color;
