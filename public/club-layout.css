@@ -199,3 +199,50 @@ header a:focus-visible {
   outline: 3px solid #241307;
   outline-offset: 4px;
 }
+
+/* Compact club panels and About page */
+#clubSidebar .panel {
+  padding: 10px 12px;
+  margin: 8px 0;
+  border-radius: 10px;
+}
+#clubSidebar h2 {
+  font-size: 20px;
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+#clubSidebar p {
+  margin: 8px 0;
+}
+#clubSidebar button {
+  padding: 8px 10px;
+}
+#clubLeaderboard th,
+#clubLeaderboard td {
+  padding: 6px 4px !important;
+}
+#clubAboutNav a {
+  display: block;
+  padding: 4px 0;
+  font-weight: 700;
+}
+#clubAboutNav a:focus-visible {
+  outline: 3px solid #241307;
+  outline-offset: 3px;
+}
+.about-wrap {
+  max-width: 820px;
+  margin: auto;
+  padding: 18px;
+}
+.about-content {
+  line-height: 1.7;
+}
+.about-content h2 {
+  margin-bottom: 8px;
+}
+@media(min-width:901px) {
+  #clubOnlineList {
+    max-height: 180px;
+  }
+}

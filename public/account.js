@@ -268,6 +268,18 @@ function onlineBox() {
       layout.append(sidebar,main);
       wrap.append(layout);
     }
+
+    if(!document.getElementById('clubAboutNav')){
+      const nav = document.createElement('nav');
+      nav.id = 'clubAboutNav';
+      nav.className = 'panel';
+      nav.setAttribute('aria-label','Club information');
+      const link = document.createElement('a');
+      link.href = '/about.html';
+      link.textContent = "About Rose's Chess Club";
+      nav.append(link);
+      sidebar.prepend(nav);
+    }
     sidebar.append(section);
 
   }
