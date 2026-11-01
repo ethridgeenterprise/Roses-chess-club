@@ -45,59 +45,32 @@ export function claimReason(g,intended){
     return null;
   }finally{if(moved)g.undo();}
 }
-export function installDraws(io,rooms,{settle,emit,playerError}){
+export function installDraws(io,rooms,{bindRoom,gameOver}){
   io.on('connection',socket=>{
-    function active(ack){
-      const r=rooms.get(socket.data.room);
-      if(!r||r.sockets[socket.data.color]!==socket.id){
-        ack({ok:false,error:'Not seated'});return null;
-      }
-      const error=playerError(r,socket);
-      if(error){ack({ok:false,error});return null;}
-      settle(r);
-      if(!r.players.b||gameOver(r)){
-        emit(socket.data.room);
-        ack({ok:false,error:'No active game'});return null;
-      }
-      return r;
+    function active(r){
+      if(!r.players.b||(r.rated&&!r.started)||gameOver(r))throw new Error('No active game');
     }
-    socket.on('drawOffer',(_,ack)=>{
-      if(typeof ack!=='function')return;
-      const r=active(ack);if(!r)return;
-      if(r.game.history().length<2)
-        return ack({ok:false,error:'Each player must make a move first.'});
-      if(r.drawOffer)
-        return ack({ok:false,error:'A draw offer is already pending.'});
+    bindRoom(socket,'drawOffer',r=>{
+      active(r);
+      if(r.game.history().length<2)throw new Error('Each player must make a move first.');
+      if(r.drawOffer)throw new Error('A draw offer is already pending.');
       r.drawOffer=socket.data.color;
-      emit(socket.data.room);ack({ok:true});
     });
-    socket.on('drawReply',(data,ack)=>{
-      if(typeof ack!=='function')return;
-      const r=active(ack);if(!r)return;
-      if(!r.drawOffer||r.drawOffer===socket.data.color)
-        return ack({ok:false,error:'No opponent draw offer to answer.'});
-      if(data?.accept===true){
-        r.drawReason='draw by agreement';r.since=null;
-      }
+    bindRoom(socket,'drawReply',(r,data)=>{
+      active(r);
+      if(!r.drawOffer||r.drawOffer===socket.data.color)throw new Error('No opponent draw offer to answer.');
+      if(data?.accept===true){r.drawReason='draw by agreement';r.since=null}
       r.drawOffer=null;
-      emit(socket.data.room);ack({ok:true});
     });
-    socket.on('drawClaim',(data,ack)=>{
-      if(typeof ack!=='function')return;
-      const r=active(ack);if(!r)return;
-      if(r.game.turn()!==socket.data.color)
-        return ack({ok:false,error:'Claim a draw on your own turn.'});
+    bindRoom(socket,'drawClaim',(r,data)=>{
+      active(r);
+      if(r.game.turn()!==socket.data.color)throw new Error('Waiting for your turn to claim a draw.');
       const intended=String(data?.move||'').trim();
-      if(intended.length>20)
-        return ack({ok:false,error:'Enter a short move such as Nf3.'});
-      try{
-        const reason=claimReason(r.game,intended);
-        if(!reason)return ack({ok:false,error:'That position does not qualify for a draw claim.'});
-        r.drawReason=reason;r.drawOffer=null;r.since=null;
-        emit(socket.data.room);ack({ok:true});
-      }catch{
-        ack({ok:false,error:'That intended move is not legal. Use notation such as Nf3.'});
-      }
+      if(intended.length>20)throw new Error('Enter a short move such as Nf3.');
+      let reason;
+      try{reason=claimReason(r.game,intended)}catch{throw new Error('Illegal move: use notation such as Nf3.')}
+      if(!reason)throw new Error('That position does not qualify for a draw claim.');
+      r.drawReason=reason;r.drawOffer=null;r.since=null;
     });
   });
 }

@@ -88,7 +88,7 @@ export function installChallenges(io, rooms, createRoom) {
       reply({ok:true,id:invite.id,expires:invite.expires});
     });
 
-    socket.on('challengeReply', (payload, reply) => {
+    socket.on('challengeReply', async (payload, reply) => {
       if (typeof reply !== 'function') return;
       const invite = invitations.get(payload?.id);
       const to = member(socket);
@@ -113,10 +113,16 @@ export function installChallenges(io, rooms, createRoom) {
         return reply({ok:false,error:'A player is no longer available.'});
       }
 
+      if(invite.accepting)return reply({ok:false,error:'Challenge acceptance is already saving.'});
+      invite.accepting=true;
+      let game;
+      try{
+        game=await createRoom({from,to,rated:invite.rated});
+      }catch{
+        invite.accepting=false;
+        return reply({ok:false,error:'Could not save the challenge game. Please try again.'});
+      }
       invitations.delete(invite.id);
-      const game = createRoom({
-        from, to, rated:invite.rated
-      });
       sender.emit('challengeAccepted', {
         id:invite.id, room:game.id, token:game.token
       });
@@ -136,7 +142,7 @@ export function installChallenges(io, rooms, createRoom) {
 
   setInterval(() => {
     for (const invite of invitations.values()) {
-      if (invite.expires <= Date.now())
+      if (!invite.accepting && invite.expires <= Date.now())
         finish(invite, 'Challenge expired.');
     }
   }, 1000).unref();

@@ -146,7 +146,7 @@ updateResumeButton();
 window.addEventListener('storage',updateResumeButton);
 
 
-function toast(s){$('toast').textContent=s}function enter(id,t,onResult){socket.emit('join',{id,token:t},r=>{if(!r.ok){if(onResult)onResult(false,r.error);else alert(r.error);return}room=r.id;color=r.color;token=r.token;localStorage.setItem(key(room),token);rememberRoom(room);history.replaceState(null,'',`?room=${room}`);$('lobby').classList.add('hidden');$('roomPanel').classList.remove('hidden');$('game').classList.remove('hidden');$('roomId').textContent=room;$('identity').textContent=`You play ${color==='w'?'White':'Black'}. ${color==='w'?'Send Rose the invite link.':'You are ready to play!'}`;toast('Connected to chess room');if(state)paint();if(onResult)onResult(true)})}
+function toast(s){$('toast').textContent=s}function enter(id,t,onResult,attempt=0){socket.emit('join',{id,token:t},r=>{if(!r.ok){if(t&&attempt<12&&/^Log in/.test(r.error||'')){setTimeout(()=>enter(id,t,onResult,attempt+1),750);return}if(onResult)onResult(false,r.error);else alert(r.error);return}room=r.id;color=r.color;token=r.token;localStorage.setItem(key(room),token);rememberRoom(room);history.replaceState(null,'',`?room=${room}`);$('lobby').classList.add('hidden');$('roomPanel').classList.remove('hidden');$('game').classList.remove('hidden');$('roomId').textContent=room;$('identity').textContent=`You play ${color==='w'?'White':'Black'}. ${color==='w'?'Send Rose the invite link.':'You are ready to play!'}`;toast('Connected to chess room');if(state)paint();if(onResult)onResult(true)})}
 $('create').onclick=()=>socket.emit('create',{
       rated:document.getElementById('gameMode')?.value==='rated'
     },r=>{
