@@ -85,3 +85,35 @@
     max-height:280px;
   }
 }
+
+/* Coffeehouse background */
+body{
+  background:#745743;
+  isolation:isolate;
+}
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  background:
+    linear-gradient(rgba(91,65,46,.60),rgba(65,44,32,.72)),
+    url('/coffee-chess.png') center / cover no-repeat;
+}
+.panel{
+  background:rgba(43,33,26,.78);
+  border-color:#9b795b;
+}
+header{
+  padding:12px;
+  border-radius:12px;
+  background:rgba(43,33,26,.78);
+}
+header h1,header p{
+  text-shadow:0 2px 3px #24170f;
+}
+.footer{
+  color:#fff0dd;
+  text-shadow:0 1px 3px #24170f;
+}
