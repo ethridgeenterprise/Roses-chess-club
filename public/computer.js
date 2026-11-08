@@ -161,4 +161,12 @@ $('computerNew').onclick = ()=>{
   think();
 };
 
+$('computerLevel').addEventListener('change', () => {
+  const previous = level;
+  $('computerNew').click();
+  if (level === previous) {
+    $('computerLevel').value = String(previous);
+  }
+});
+
 paint();
