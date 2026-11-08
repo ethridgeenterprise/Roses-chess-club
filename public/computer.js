@@ -59,9 +59,33 @@ function paint(){
     if(game.isCheck()) text += ' — Check!';
   }
   $('computerStatus').textContent = text;
+  updateCapturedPieces();
   $('computerMoves').textContent = game.history()
     .map((move,i)=>(i%2===0 ? `${Math.floor(i/2)+1}. ` : '')+move)
     .join('  ');
+}
+
+function updateCapturedPieces(){
+  const symbols = {
+    w: {p:'♙',n:'♘',b:'♗',r:'♖',q:'♕'},
+    b: {p:'♟',n:'♞',b:'♝',r:'♜',q:'♛'}
+  };
+
+  const captured = {w:[],b:[]};
+
+  for(const move of game.history({verbose:true})){
+    if(move.captured){
+      captured[move.color].push(
+        symbols[move.color === 'w' ? 'b' : 'w'][move.captured]
+      );
+    }
+  }
+
+  $('computerCapturedWhite').textContent =
+    captured.w.join(' ') || 'None';
+
+  $('computerCapturedBlack').textContent =
+    captured.b.join(' ') || 'None';
 }
 
 function failure(text){
@@ -142,6 +166,48 @@ $('computerBoard').addEventListener('click',event=>{
     $('computerStatus').textContent = 'That move is not legal. Choose another square.';
   }
 });
+
+$('computerCopyMoves').onclick = async () => {
+  const moves = $('computerMoves').textContent.trim();
+  const status = $('computerExportStatus');
+
+  if (!moves) {
+    status.textContent = 'Play a move first.';
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(moves);
+    status.textContent = 'Moves copied!';
+  } catch {
+    status.textContent = 'Could not copy moves. Please select and copy them manually.';
+  }
+};
+
+$('computerDownloadPgn').onclick = () => {
+  const status = $('computerExportStatus');
+
+  if (!game.history().length) {
+    status.textContent = 'Play a move first.';
+    return;
+  }
+
+  const pgn = game.pgn();
+  const blob = new Blob([pgn + '\\n'], {
+    type: 'application/x-chess-pgn'
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+
+  link.href = url;
+  link.download = 'roses-chess-club-game.pgn';
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  status.textContent = 'PGN downloaded!';
+};
 
 $('computerRetry').onclick = think;
 $('computerNew').onclick = ()=>{
