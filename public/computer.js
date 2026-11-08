@@ -81,7 +81,9 @@ function think(){
   const id = ++requestId;
   try{
     if(!worker){
-      worker = new Worker('/computer-worker.js',{type:'module'});
+      worker = level >= 3
+        ? new Worker('/stockfish-worker.js')
+        : new Worker('/computer-worker.js',{type:'module'});
       worker.onmessage = event=>{
         const result = event.data;
         if(result.id!==requestId || result.fen!==game.fen()) return;
