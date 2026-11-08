@@ -29,6 +29,30 @@ const board = new Chessboard($('computerBoard'),{
   extensions:[{class:Markers,props:{autoMarkers:null}}]
 });
 
+const replayGame = new Chess();
+let replayBoard = null;
+let replayMoves = [];
+let replayIndex = 0;
+
+function getReplayBoard(){
+  if(!replayBoard){
+    replayBoard = new Chessboard($('computerReplayBoard'),{
+      position:replayGame.fen(),
+      orientation:'w',
+      assetsUrl:'/vendor/cm-chessboard/assets/',
+      style:{
+        cssClass:'chessboard-js',
+        borderType:BORDER_TYPE.thin,
+        showCoordinates:true,
+        pieces:{file:'pieces/standard.svg'},
+        animationDuration:150
+      },
+      extensions:[{class:Markers,props:{autoMarkers:null}}]
+    });
+  }
+  return replayBoard;
+}
+
 function paint(){
   board.setPosition(game.fen(),false);
   board.removeMarkers();
@@ -221,6 +245,103 @@ function readSavedGames(){
   }
 }
 
+function updateReplayPosition(){
+  replayGame.reset();
+
+  for(let i = 0; i < replayIndex; i++){
+    const move = replayMoves[i];
+    replayGame.move({
+      from: move.from,
+      to: move.to,
+      promotion: move.promotion || 'q'
+    });
+  }
+
+  const replay = getReplayBoard();
+  replay.setPosition(replayGame.fen(), false);
+  replay.removeMarkers();
+
+  if(replayIndex > 0){
+    const last = replayMoves[replayIndex - 1];
+    replay.addMarker(MARKER_TYPE.frame, last.from);
+    replay.addMarker(recessedMarker, last.to);
+    replay.addMarker(lastMarker, last.to);
+
+    const moveNumber = Math.ceil(replayIndex / 2);
+    const notation = replayIndex % 2
+      ? moveNumber + '. ' + last.san
+      : moveNumber + '... ' + last.san;
+
+    $('computerReplayStatus').textContent =
+      notation + ' — Move ' + replayIndex +
+      ' of ' + replayMoves.length;
+  } else {
+    $('computerReplayStatus').textContent =
+      'Starting position — ' + replayMoves.length +
+      ' moves to replay.';
+  }
+
+  $('computerReplayStart').disabled = replayIndex === 0;
+  $('computerReplayBack').disabled = replayIndex === 0;
+  $('computerReplayNext').disabled =
+    replayIndex === replayMoves.length;
+  $('computerReplayEnd').disabled =
+    replayIndex === replayMoves.length;
+}
+
+$('computerReplayStart').onclick = () => {
+  replayIndex = 0;
+  updateReplayPosition();
+};
+
+$('computerReplayBack').onclick = () => {
+  if(replayIndex > 0) replayIndex--;
+  updateReplayPosition();
+};
+
+$('computerReplayNext').onclick = () => {
+  if(replayIndex < replayMoves.length) replayIndex++;
+  updateReplayPosition();
+};
+
+$('computerReplayEnd').onclick = () => {
+  replayIndex = replayMoves.length;
+  updateReplayPosition();
+};
+
+$('computerReplayClose').onclick = () => {
+  $('computerReplayRoom').hidden = true;
+};
+
+function openSavedReplay(saved){
+  const loaded = new Chess();
+
+  try {
+    loaded.loadPgn(saved.pgn);
+  } catch {
+    $('computerExportStatus').textContent =
+      'Could not open this saved game.';
+    return;
+  }
+
+  replayMoves = loaded.history({verbose:true});
+  replayIndex = 0;
+  replayGame.reset();
+
+  const room = $('computerReplayRoom');
+  room.hidden = false;
+
+  $('computerReplayTitle').textContent = saved.name;
+  $('computerReplayStatus').textContent =
+    'Starting position — ' + replayMoves.length + ' moves to replay.';
+
+  const replay = getReplayBoard();
+  replay.setOrientation(saved.side === 'b' ? 'b' : 'w', false);
+  updateReplayPosition();
+
+  room.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
 function showSavedGames(){
   const container = $('computerSavedGames');
   const games = readSavedGames();
@@ -239,7 +360,12 @@ function showSavedGames(){
     const details = document.createElement('span');
     details.textContent = ' — ' + saved.date + ' · ' + saved.difficulty;
 
-    entry.append(name, details);
+    const replayButton = document.createElement('button');
+    replayButton.type = 'button';
+    replayButton.textContent = 'Replay';
+    replayButton.onclick = () => openSavedReplay(saved);
+
+    entry.append(name, details, ' ', replayButton);
     container.appendChild(entry);
   }
 }
