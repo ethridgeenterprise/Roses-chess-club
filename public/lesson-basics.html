@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chess Basics | Rose's Chess Academy</title>
+<link rel="stylesheet" href="/vendor/cm-chessboard/assets/chessboard.css">
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Georgia,serif;
+  background:linear-gradient(135deg,#f3e5cb,#c49a70);
+  color:#382419;
+}
+header{
+  text-align:center;
+  background:#493022;
+  color:#fff0d5;
+  padding:25px;
+}
+main{
+  max-width:950px;
+  margin:auto;
+  padding:20px;
+}
+.lesson{
+  background:#fff6e8;
+  padding:25px;
+  border-radius:15px;
+  text-align:center;
+}
+.board{
+  width:min(100%,520px);
+  margin:20px auto;
+}
+button{
+  padding:12px 20px;
+  margin:5px;
+  background:#70452c;
+  color:white;
+  border:0;
+  border-radius:8px;
+  font-size:1rem;
+  cursor:pointer;
+}
+button:hover{background:#96623e}
+#message{font-size:1.2rem;min-height:2em}
+a{color:#70452c}
+</style>
+</head>
+<body>
+<header>
+<h1>♙ Chess Basics ♙</h1>
+<p>Rose's Chess Academy</p>
+</header>
+<main>
+<section class="lesson">
+<h2>Lesson 1: How the Pieces Move</h2>
+<p>Select a piece to explore how it moves.</p>
+
+<div>
+<button data-piece="p">Pawn</button>
+<button data-piece="n">Knight</button>
+<button data-piece="b">Bishop</button>
+<button data-piece="r">Rook</button>
+<button data-piece="q">Queen</button>
+<button data-piece="k">King</button>
+</div>
+
+<div id="lessonBoard" class="board"></div>
+
+<p id="message">Choose a piece above to begin.</p>
+
+<div id="challengePanel" style="
+  background:#f1dfb9;
+  border:2px solid #a77b43;
+  border-radius:12px;
+  padding:18px;
+  margin:20px auto;
+  max-width:520px;
+">
+  <h3>⭐ Practice Challenge</h3>
+  <p id="challengeText">
+    Select the knight and make a legal move.
+  </p>
+  <p id="starCount" style="font-size:1.3rem">
+    Stars earned: 0 ⭐
+  </p>
+</div>
+<button id="resetLesson">Reset Board</button>
+<p><a href="academy.html">← Back to the Academy</a></p>
+</section>
+</main>
+<script type="module" src="/lesson-basics.js"></script>
+</body>
+</html>

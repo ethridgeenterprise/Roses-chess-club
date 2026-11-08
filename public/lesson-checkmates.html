@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Checkmate School | Rose's Chess Academy</title>
+<link rel="stylesheet" href="/vendor/cm-chessboard/assets/chessboard.css">
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ font-family:Georgia,serif;
+ background:linear-gradient(135deg,#f3e5cb,#c49a70);
+ color:#382419;
+}
+header{
+ background:#493022;
+ color:#fff0d5;
+ text-align:center;
+ padding:25px;
+}
+main{max-width:950px;margin:auto;padding:20px}
+.lesson{
+ background:#fff6e8;
+ padding:25px;
+ border-radius:15px;
+ text-align:center;
+}
+.board{width:min(100%,520px);margin:20px auto}
+button{
+ background:#70452c;
+ color:white;
+ padding:12px 20px;
+ margin:5px;
+ border:0;
+ border-radius:8px;
+ cursor:pointer;
+ font-size:1rem;
+}
+button:hover{background:#96623e}
+.panel{
+ background:#f1dfb9;
+ border:2px solid #a77b43;
+ border-radius:12px;
+ padding:18px;
+ max-width:520px;
+ margin:20px auto;
+}
+#instruction{font-size:1.2rem;min-height:3em}
+a{color:#70452c}
+</style>
+</head>
+<body>
+<header>
+<h1>♞ Checkmate School ♞</h1>
+<p>Rose's Chess Academy</p>
+</header>
+<main>
+<section class="lesson">
+<h2>Lesson 3: Think Like a Chess Player</h2>
+<p>Learn to recognize forks, pins, and skewers.</p>
+
+<div class="panel">
+<h3 id="checkmateTitle">Mate in One</h3>
+<p id="instruction">Loading your first challenge...</p>
+<p id="progress">Challenge 1 of 3</p>
+</div>
+
+<div id="checkmateBoard" class="board"></div>
+
+<div class="panel">
+<h3>⭐ Your Tactics Stars</h3>
+<p id="stars">0 of 3 earned</p>
+</div>
+
+<button id="hintButton">Show Hint</button>
+<button id="nextChallenge">Next Challenge</button>
+<button id="restartCheckmates">Restart</button>
+
+<p><a href="academy.html">← Back to the Academy</a></p>
+</section>
+</main>
+<script type="module" src="/lesson-checkmates.js"></script>
+</body>
+</html>
