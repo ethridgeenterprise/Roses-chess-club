@@ -26,7 +26,24 @@ main{max-width:950px;margin:auto;padding:20px}
  border-radius:15px;
  text-align:center;
 }
-.board{width:min(100%,520px);margin:20px auto}
+.board{
+  width:min(100%,520px);
+  margin:24px auto;
+  padding:0;
+  background:linear-gradient(
+    145deg,
+    #b9824d 0%,
+    #70452c 35%,
+    #382419 75%,
+    #96623e 100%
+  );
+  border:0;
+  border-radius:10px;
+  overflow:hidden;
+  box-shadow:
+    0 12px 28px rgba(40,22,12,.30),
+    inset 0 2px 3px rgba(255,235,190,.35);
+}
 button{
  background:#70452c;
  color:white;

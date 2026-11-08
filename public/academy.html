@@ -52,11 +52,39 @@ a.button{
   font-weight:bold;
 }
 a.button:hover{background:#96623e}
+a.button:focus-visible,
+a.club-link:focus-visible{
+  outline:3px solid #d69b45;
+  outline-offset:4px;
+}
+.lesson{
+  transition:transform .2s ease,box-shadow .2s ease;
+}
+.lesson:hover{
+  transform:translateY(-5px);
+  box-shadow:0 10px 25px #38241935;
+}
+.club-link{
+  display:inline-block;
+  margin-bottom:18px;
+  padding:10px 18px;
+  border:1px solid #e9d3af;
+  border-radius:9px;
+  color:#fff0d5;
+  text-decoration:none;
+  font-weight:bold;
+}
+.club-link:hover{background:#70452c}
+@media(prefers-reduced-motion:reduce){
+  .lesson{transition:none}
+  .lesson:hover{transform:none}
+}
 footer{text-align:center;padding:30px}
 </style>
 </head>
 <body>
 <header>
+<a class="club-link" href="index.html">⌂ Return to Chess Club</a>
 <h1>♛ Rose's Chess Academy ♛</h1>
 <p>Learn • Practice • Improve • Enjoy</p>
 </header>
