@@ -365,7 +365,50 @@ function showSavedGames(){
     replayButton.textContent = 'Replay';
     replayButton.onclick = () => openSavedReplay(saved);
 
-    entry.append(name, details, ' ', replayButton);
+    const downloadButton = document.createElement('button');
+    downloadButton.type = 'button';
+    downloadButton.textContent = 'Download';
+    downloadButton.onclick = () => {
+      const blob = new Blob([saved.pgn + '\n'], {
+        type: 'application/x-chess-pgn'
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = saved.name.replace(/[^a-z0-9_-]/gi, '_') + '.pgn';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    };
+
+    const deleteButton = document.createElement('button');
+    deleteButton.type = 'button';
+    deleteButton.textContent = 'Delete';
+    deleteButton.onclick = () => {
+      if(!confirm('Delete saved game "' + saved.name + '"?')) return;
+
+      const remaining = readSavedGames().filter(
+        item => item.id !== saved.id
+      );
+
+      try {
+        localStorage.setItem(savedGamesKey, JSON.stringify(remaining));
+        $('computerReplayRoom').hidden = true;
+        showSavedGames();
+        $('computerExportStatus').textContent = 'Saved game deleted.';
+      } catch {
+        $('computerExportStatus').textContent =
+          'Could not delete saved game.';
+      }
+    };
+
+    entry.append(
+      name, details, ' ',
+      replayButton, ' ',
+      downloadButton, ' ',
+      deleteButton
+    );
     container.appendChild(entry);
   }
 }
