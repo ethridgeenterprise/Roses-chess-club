@@ -209,6 +209,88 @@ $('computerDownloadPgn').onclick = () => {
   status.textContent = 'PGN downloaded!';
 };
 
+
+const savedGamesKey = 'rosesChessClubPracticeGames';
+
+function readSavedGames(){
+  try {
+    const games = JSON.parse(localStorage.getItem(savedGamesKey) || '[]');
+    return Array.isArray(games) ? games : [];
+  } catch {
+    return [];
+  }
+}
+
+function showSavedGames(){
+  const container = $('computerSavedGames');
+  const games = readSavedGames();
+  container.replaceChildren();
+
+  if (!games.length) {
+    container.textContent = 'No saved games yet.';
+    return;
+  }
+
+  for (const saved of games) {
+    const entry = document.createElement('p');
+    const name = document.createElement('strong');
+    name.textContent = saved.name;
+
+    const details = document.createElement('span');
+    details.textContent = ' — ' + saved.date + ' · ' + saved.difficulty;
+
+    entry.append(name, details);
+    container.appendChild(entry);
+  }
+}
+
+$('computerSaveGame').onclick = () => {
+  const status = $('computerExportStatus');
+
+  if (!game.history().length) {
+    status.textContent = 'Play a move before saving.';
+    return;
+  }
+
+  const suggestedName = 'Practice Game ' +
+    new Date().toLocaleDateString();
+
+  const enteredName = prompt('Name this game:', suggestedName);
+  if (enteredName === null) return;
+
+  const name = enteredName.trim() || suggestedName;
+
+  const difficultyNames = {
+    1:'Beginner',
+    2:'Casual',
+    3:'Intermediate',
+    4:'Advanced',
+    5:'Expert'
+  };
+
+  const saved = {
+    id: crypto.randomUUID(),
+    name,
+    date: new Date().toLocaleString(),
+    difficulty: difficultyNames[level] || 'Unknown',
+    side: human,
+    pgn: game.pgn()
+  };
+
+  const games = readSavedGames();
+  games.unshift(saved);
+
+  try {
+    localStorage.setItem(savedGamesKey, JSON.stringify(games));
+    showSavedGames();
+    status.textContent = 'Game saved to My Game Collection!';
+  } catch {
+    status.textContent = 'Could not save. Browser storage may be full or unavailable.';
+  }
+};
+
+showSavedGames();
+
 $('computerRetry').onclick = think;
 $('computerNew').onclick = ()=>{
   if(game.history().length && !game.isGameOver() &&
