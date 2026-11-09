@@ -229,3 +229,6 @@ for (const source of [
     document.body.append(script);
   });
 }
+
+// multiplayer-game-collection
+await import('/player-collection.js');

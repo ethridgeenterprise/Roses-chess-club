@@ -370,6 +370,28 @@ input{background:#eee9de}
 <link rel="stylesheet" href="/vendor/cm-chessboard/assets/chessboard.css">
 <link rel="stylesheet" href="/vendor/cm-chessboard/assets/extensions/markers/markers.css">
 <link rel="stylesheet" href="/club-layout.css">
+
+<style>
+#playerGameCollection .practice-game-library,
+#computerReplayRoom {
+  margin-top:20px;
+  padding:20px;
+  background:#e7dbc0;
+  color:#38291f;
+  border:2px solid #ad9170;
+  border-radius:16px;
+}
+#playerGameCollection button { margin:5px; }
+#computerReplayBoard { width:100%; max-width:640px; margin:auto; }
+#computerReplayRoom[hidden] { display:none; }
+.practice-captures span { font-size:1.6rem; }
+#computerReplayBoard .marker.practice-recessed {
+  fill:#8b5e34; fill-opacity:.3;
+}
+#computerReplayBoard .marker.practice-last {
+  stroke:#c09038; stroke-width:3; fill:none;
+}
+</style>
 </head><body><div class="wrap"><header><h1><a class="club-home-title" href="/">♔ Rose's Chess Club ♚</a></h1>
 <nav aria-label="Main navigation"><a class="club-home-button" href="/">⌂ Home</a> <a class="club-home-button" href="/academy.html">♟ Chess Academy</a></nav><p>Where every queen deserves her castle</p></header>
 <section class="panel" id="accountPanel">
@@ -428,4 +450,43 @@ input{background:#eee9de}
     </div>
   </form>
 </section>
-<section class="panel" id="lobby"><div class="actions"><button id="create">Create private game</button><span>or join:</span><input id="code" placeholder="ROOM CODE" maxlength="6" aria-label="Room code"><button id="join">Join game</button></div><p class="small">Share your room code with your opponent. White moves first.</p></section><section class="panel hidden" id="roomPanel"><div class="actions"><span>Room <span class="room" id="roomId"></span></span><button class="secondary" id="copy">Copy invite link</button></div><p class="small" id="identity"></p><p id="toast" role="status"></p></section><section class="panel hidden" id="game"><div class="clocks" aria-label="Game clocks"><div class="clock" id="clock-w">White 15:00</div><div class="clock" id="clock-b">Black 15:00</div></div><p class="clock-note">15 minutes each · +10 seconds after each move</p><div class="scores" aria-label="Room scores"><div id="score-w">White: 0 wins · 0 losses · 0 draws</div><div id="score-b">Black: 0 wins · 0 losses · 0 draws</div></div><div id="status" aria-live="polite"></div><div id="board" role="grid" aria-label="Chessboard"></div><div id="promotion" class="hidden"><p>Promote your pawn to:</p><div class="actions"><button data-p="q">♛ Queen</button><button data-p="r">♜ Rook</button><button data-p="b">♝ Bishop</button><button data-p="n">♞ Knight</button></div></div><div class="actions"><button class="secondary" id="restart">New game</button><button class="secondary" id="resign">Resign</button><span class="small">Tap a piece, then its destination.</span></div><p class="small">Moves</p><div id="moves"></div></section><p class="footer">Made for Robert & Rose • Play together • Grow together</p></div><script src="/socket.io/socket.io.js"></script><script type="module" src="/app.js"></script><script type="module" src="/account.js"></script></body></html>
+<section class="panel" id="lobby"><div class="actions"><button id="create">Create private game</button><span>or join:</span><input id="code" placeholder="ROOM CODE" maxlength="6" aria-label="Room code"><button id="join">Join game</button></div><p class="small">Share your room code with your opponent. White moves first.</p></section><section class="panel hidden" id="roomPanel"><div class="actions"><span>Room <span class="room" id="roomId"></span></span><button class="secondary" id="copy">Copy invite link</button></div><p class="small" id="identity"></p><p id="toast" role="status"></p></section><section class="panel hidden" id="game"><div class="clocks" aria-label="Game clocks"><div class="clock" id="clock-w">White 15:00</div><div class="clock" id="clock-b">Black 15:00</div></div><p class="clock-note">15 minutes each · +10 seconds after each move</p><div class="scores" aria-label="Room scores"><div id="score-w">White: 0 wins · 0 losses · 0 draws</div><div id="score-b">Black: 0 wins · 0 losses · 0 draws</div></div><div id="status" aria-live="polite"></div><div id="board" role="grid" aria-label="Chessboard"></div><div id="promotion" class="hidden"><p>Promote your pawn to:</p><div class="actions"><button data-p="q">♛ Queen</button><button data-p="r">♜ Rook</button><button data-p="b">♝ Bishop</button><button data-p="n">♞ Knight</button></div></div><div class="actions"><button class="secondary" id="restart">New game</button><button class="secondary" id="resign">Resign</button><span class="small">Tap a piece, then its destination.</span></div><div class="practice-captures">
+  <p><strong>Captured by White:</strong>
+    <span id="computerCapturedWhite" aria-live="polite">None</span>
+  </p>
+  <p><strong>Captured by Black:</strong>
+    <span id="computerCapturedBlack" aria-live="polite">None</span>
+  </p>
+</div>
+<p class="small">Moves</p><div id="moves"></div></section><section class="panel" id="playerGameCollection"><p>Current game moves</p><div id="computerMoves"></div><div class="practice-export-actions">
+  <button id="computerCopyMoves" type="button" disabled>Copy moves</button>
+  <button id="computerDownloadPgn" type="button" disabled>Download PGN</button>
+  <button id="computerSaveGame" type="button" disabled>Save Game</button>
+</div>
+
+<div class="practice-game-library">
+  <h3>My Game Collection</h3>
+  <p class="small">Your saved games stay in this browser.</p>
+  <div id="computerSavedGames">
+    No saved games yet.
+  </div>
+</div>
+<section id="computerReplayRoom" hidden>
+  <h3>Game Replay</h3>
+  <p id="computerReplayTitle"></p>
+  <p id="computerReplayStatus" aria-live="polite">
+    Ready to replay.
+  </p>
+  <div id="computerReplayBoard"
+       aria-label="Saved game replay chessboard"></div>
+  <div class="practice-export-actions">
+    <button id="computerReplayStart" type="button">⏮ Start</button>
+    <button id="computerReplayBack" type="button">◀ Back</button>
+    <button id="computerReplayNext" type="button">Next ▶</button>
+    <button id="computerReplayEnd" type="button">End ⏭</button>
+    <button id="computerReplayClose" type="button">Close Replay</button>
+  </div>
+</section>
+
+<p id="computerExportStatus" class="small" role="status" aria-live="polite"></p>
+</section><p class="footer">Made for Robert & Rose • Play together • Grow together</p></div><script src="/socket.io/socket.io.js"></script><script type="module" src="/app.js"></script><script type="module" src="/account.js"></script></body></html>
