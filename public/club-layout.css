@@ -281,10 +281,11 @@ header h1, header p,
   font-size: 19px;
 }
 
-/* Ghost Labs - Antique bronze panel trim */
+  /* Ghost Labs - Antique bronze panel trim */
 .panel, header {
-  border: 2px solid #967451;
-  box-shadow: 0 3px 8px rgba(36, 23, 15, .25);
+  border: 3px solid #50351f;
+  box-shadow: 0 3px 8px rgba(36, 23, 15, .40);
+
 }
 
 /* Ghost Labs developer signature */
