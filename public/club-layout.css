@@ -280,3 +280,51 @@ header h1, header p,
 .about-content {
   font-size: 19px;
 }
+
+/* Ghost Labs - Antique bronze panel trim */
+.panel, header {
+  border: 2px solid #967451;
+  box-shadow: 0 3px 8px rgba(36, 23, 15, .25);
+}
+
+/* Ghost Labs developer signature */
+.ghostlabs-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 18px 0;
+  color: #f2dfbd;
+  font-size: 14px;
+  text-align: center;
+}
+.ghostlabs-footer img {
+  width: 85px;
+  height: auto;
+}
+.ghostlabs-footer strong {
+  color: #e4bc76;
+  letter-spacing: 1px;
+}
+
+.ghostlabs-footer img {
+  filter: drop-shadow(0 0 1px #000)
+          drop-shadow(0 1px 1px #000);
+}
+
+/* Ghost Labs interactive contact emblem */
+.ghostlabs-contact {
+  display: inline-block;
+  cursor: pointer;
+  transition: transform .25s ease;
+}
+.ghostlabs-contact:hover,
+.ghostlabs-contact:focus-visible {
+  transform: scale(1.08);
+}
+.ghostlabs-contact:hover img,
+.ghostlabs-contact:focus-visible img {
+  filter: drop-shadow(0 0 1px #000)
+          drop-shadow(0 0 6px #d6af65);
+}
