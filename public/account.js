@@ -298,6 +298,8 @@ function syncPresence(session) {
     }, result => {
       if (!result?.ok && result?.error)
         onlineBox().textContent = result.error;
+      if (result?.ok)
+        window.dispatchEvent(new Event('club-auth-ready'));
     });
   }, 650);
 }

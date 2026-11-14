@@ -35,7 +35,7 @@ export function outcome(r){
   }
   return null;
 }
-export const gameOver=r=>!!outcome(r);
+export const gameOver=r=>!!r.cancelled||!!outcome(r);
 export function claimReason(g,intended){
   let moved=false;
   try{

@@ -119,3 +119,39 @@ test('room created after startup can be loaded on demand',async()=>{
   await b.change('ABC123',r=>r.game.move('c4'));
   assert.deepEqual(rooms.get('ABC123').game.history(),['c4']);
 });
+
+test('cancelled game survives server restart',async()=>{
+  const db=fakeDatabase();
+  const rooms=new Map();
+  const store=new RoomStore(rooms,{db,namespace:'cancelled'});
+  const r=room();
+  r.rated=true;
+  r.started=false;
+  r.since=null;
+
+  await store.create(r);
+
+  await store.change(r.roomCode,draft=>{
+    draft.cancelled=true;
+  });
+
+  const fresh=new Map();
+  await new RoomStore(fresh,{
+    db,namespace:'cancelled'
+  }).restore();
+
+  const recovered=fresh.get(r.roomCode);
+
+  assert.equal(recovered.cancelled,true);
+  assert.equal(recovered.since,null);
+  assert.equal(outcome(recovered),null);
+});
+
+test('cancelled game has no recorded outcome',()=>{
+  const r=room();
+  r.cancelled=true;
+  r.since=null;
+
+  assert.equal(outcome(r),null);
+  assert.equal(r.resultRecorded,undefined);
+});

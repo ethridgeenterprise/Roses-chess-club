@@ -20,8 +20,8 @@ export function tracked(r){
     r.members.w.id!==r.members.b.id);
 }
 
-export function saveFinishedGame(r,io){
-  if(!tracked(r)||r.saved||r.saving||(r.rated&&!r.started))return;
+export function saveFinishedGame(r,io,store){
+  if(r.cancelled||!tracked(r)||r.saved||r.saving||(r.rated&&!r.started))return;
   const end=outcome(r);
   if(!end)return;
   if(Date.now()-(r.lastSaveAttempt||0)<5000)return;
@@ -52,7 +52,13 @@ export function saveFinishedGame(r,io){
       const {error}=await db.rpc('record_club_game',payload);
       if(error)throw error;
       if(r.gameId!==gameId)return;
-      r.saved=true;
+      await store.change(r.roomCode,draft=>{
+        if(draft.gameId!==gameId)
+          throw new Error('Game has changed');
+        draft.saved=true;
+      });
+
+      if(r.gameId!==gameId)return;
       io.to(r.roomCode).emit('gameSaved',{ok:true});
     }catch{
       if(r.gameId!==gameId)return;

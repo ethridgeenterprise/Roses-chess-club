@@ -146,6 +146,84 @@ updateResumeButton();
 window.addEventListener('storage',updateResumeButton);
 
 
+
+// Ghost Labs - Account-based saved game recovery
+const recoveryBox = document.createElement('div');
+recoveryBox.style.cssText = 'margin-bottom:16px';
+document.getElementById('lobby').prepend(recoveryBox);
+
+function refreshUnfinishedGames(){
+  if(!socket.connected) return;
+
+  socket.timeout(10000).emit('myUnfinishedGames', {},
+    (error,result)=>{
+      recoveryBox.replaceChildren();
+
+      if(error || !result?.ok) return;
+
+      for(const game of result.games){
+        const section = document.createElement('section');
+        const label = document.createElement('p');
+
+        label.textContent =
+          'Unfinished game vs ' + game.opponent +
+          ' — ' + game.moves + ' moves';
+
+        const resume = document.createElement('button');
+        resume.type = 'button';
+        resume.textContent = 'Resume game';
+        resume.style.cssText =
+          'padding:14px 20px;font-size:18px';
+
+        resume.onclick = ()=>{
+          enter(game.id, null, (ok,error)=>{
+            if(!ok) alert(error || 'Unable to resume game.');
+          });
+        };
+
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'secondary';
+        close.textContent = game.canCancel
+          ? 'Cancel game' : 'Resign game';
+        close.style.marginLeft = '10px';
+
+        close.onclick = ()=>{
+          const message = game.canCancel
+            ? 'Cancel this unstarted game?'
+            : 'Resign this game? This may count as a loss.';
+
+          if(!confirm(message)) return;
+
+          close.disabled = true;
+          socket.timeout(15000).emit('closeUnfinishedGame',{
+            id:game.id,
+            gameId:game.gameId,
+            action:game.canCancel?'cancel':'resign'
+          },(error,result)=>{
+            close.disabled = false;
+
+            if(error || !result?.ok){
+              alert(result?.error ||
+                'Action not confirmed. Please refresh.');
+            }
+
+            refreshUnfinishedGames();
+          });
+        };
+
+        section.append(label,resume,close);
+        recoveryBox.append(section);
+      }
+    });
+}
+
+socket.on('clubOnline', refreshUnfinishedGames);
+window.addEventListener('club-auth-ready', refreshUnfinishedGames);
+socket.on('disconnect', ()=>{
+  recoveryBox.replaceChildren();
+});
+
 function toast(s){$('toast').textContent=s}function enter(id,t,onResult,attempt=0){socket.emit('join',{id,token:t},r=>{if(!r.ok){if(t&&attempt<12&&/^Log in/.test(r.error||'')){setTimeout(()=>enter(id,t,onResult,attempt+1),750);return}if(onResult)onResult(false,r.error);else alert(r.error);return}room=r.id;color=r.color;token=r.token;localStorage.setItem(key(room),token);rememberRoom(room);history.replaceState(null,'',`?room=${room}`);$('lobby').classList.add('hidden');$('roomPanel').classList.remove('hidden');$('game').classList.remove('hidden');$('roomId').textContent=room;$('identity').textContent=`You play ${color==='w'?'White':'Black'}. ${color==='w'?'Send Rose the invite link.':'You are ready to play!'}`;toast('Connected to chess room');if(state)paint();if(onResult)onResult(true)})}
 $('create').onclick=()=>socket.emit('create',{
       rated:document.getElementById('gameMode')?.value==='rated'
@@ -165,7 +243,7 @@ if(state.scores){
       score.wins+' wins · '+score.losses+' losses · '+score.draws+' draws';
   }
 }
-let status=state.over?(state.checkmate?`${state.turn==='w'?'Black':'White'} wins by checkmate!`:'Game drawn or ended.'):state.turn===color?'Your turn':`Waiting for ${state.turn==='w'?'White':'Black'}`;if(state.timeout)status=`${state.timeout==='w'?'White':'Black'} ran out of time — ${state.timeout==='w'?'Black':'White'} wins!`;if(state.resigned)status=`${state.resigned==='w'?'White':'Black'} resigned — ${state.resigned==='w'?'Black':'White'} wins!`;$('resign').disabled=state.over||!state.players.b;if(state.check&&!state.over)status+=' — Check!';if(!state.players.b)status='Waiting for second player to join';$('status').textContent=status;$('moves').textContent=state.history.map((m,i)=>(i%2===0?`${Math.floor(i/2)+1}. `:'')+m.san).join('   ')}
+let status=state.over?(state.checkmate?`${state.turn==='w'?'Black':'White'} wins by checkmate!`:'Game drawn or ended.'):state.turn===color?'Your turn':`Waiting for ${state.turn==='w'?'White':'Black'}`;if(state.timeout)status=`${state.timeout==='w'?'White':'Black'} ran out of time — ${state.timeout==='w'?'Black':'White'} wins!`;if(state.resigned)status=`${state.resigned==='w'?'White':'Black'} resigned — ${state.resigned==='w'?'Black':'White'} wins!`;$('resign').disabled=state.over||!state.players.b;if(state.check&&!state.over)status+=' — Check!';if(!state.players.b)status='Waiting for second player to join';if(state.cancelled)status='Game cancelled. Return to the lobby to start another game.';$('status').textContent=status;$('moves').textContent=state.history.map((m,i)=>(i%2===0?`${Math.floor(i/2)+1}. `:'')+m.san).join('   ')}
 function legalTarget(from,to){if(from===to)return false;const p=pieceAt(from),dest=pieceAt(to);if(!p)return false;const mine=p===p.toUpperCase()?'w':'b';if(dest&&(dest===dest.toUpperCase()?'w':'b')===mine)return false;return true}
 function tap(sq){if(!state||state.over||state.turn!==color||!state.players.b)return;const p=pieceAt(sq),mine=p&&(p===p.toUpperCase()?'w':'b')===color;if(!selected){if(mine){selected=sq;paint()}return}if(selected===sq){selected=null;paint();return}if(mine){selected=sq;paint();return}const from=selected;selected=null;const pawn=pieceAt(from)?.toLowerCase()==='p';if(pawn&&(sq[1]==='1'||sq[1]==='8')){pending={from,to:sq};$('promotion').classList.remove('hidden');paint();return}sendMove({from,to:sq,promotion:'q'})}
 function sendMove(move){socket.emit('move',move,r=>{if(!r.ok)toast(r.error||'Move not allowed');else toast('')})}

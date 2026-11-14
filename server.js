@@ -42,7 +42,7 @@ function snapshot(r){
   const over=gameOver(r);
   return {
     fen:r.game.fen(),history:r.game.history({verbose:true}),turn:r.game.turn(),
-    over,check:r.game.isCheck(),checkmate:r.game.isCheckmate(),
+    over,cancelled:!!r.cancelled,check:r.game.isCheck(),checkmate:r.game.isCheckmate(),
     draw:outcome(r)?.result==='1/2-1/2',outcome:outcome(r),drawOffer:r.drawOffer||null,
     timeout:r.timeout,resigned:r.resigned||null,scores:r.scores,
     tracked:tracked(r),saved:!!r.saved,rated:!!r.rated,started:!!r.started,ready:r.ready||{},
@@ -55,7 +55,7 @@ function snapshot(r){
 function emit(id){
   const r=rooms.get(id);if(!r)return;
   io.to(id).emit('state',snapshot(r));
-  saveFinishedGame(r,io);
+  saveFinishedGame(r,io,store);
 }
 function failure(ack,error){
   const known=['Not seated','Log in','Waiting','Both players','Two different',
@@ -105,6 +105,98 @@ installDraws(io,rooms,{bindRoom,gameOver});
 installRated(io,rooms,{bindRoom,gameOver});
 
 io.on('connection',socket=>{
+  socket.on('closeUnfinishedGame',async(payload,ack)=>{
+    if(typeof ack !== 'function') return;
+
+    const member = socket.data.clubMember;
+    if(!member || !(socket.data.clubMemberExpires > Date.now())){
+      return ack({ok:false,error:'Log in first.'});
+    }
+
+    const id = String(payload?.id || '').toUpperCase();
+
+    try{
+      await store.change(id,r=>{
+        requireThat(
+          socket.data.clubMember?.id === member.id &&
+          socket.data.clubMemberExpires > Date.now(),
+          'Log in again.'
+        );
+
+        const side = ['w','b'].find(side =>
+          r.members?.[side]?.id === member.id ||
+          r.challengeAllowed?.[side] === member.id
+        );
+
+        requireThat(side,'Not seated in this game');
+        requireThat(
+          payload?.gameId === r.gameId,
+          'Game updated. Refresh and try again.'
+        );
+        requireThat(!gameOver(r),'Game has ended');
+
+        const unstarted = !r.players.b || (r.rated&&!r.started);
+
+        requireThat(
+          payload?.action === (unstarted?'cancel':'resign'),
+          'Game updated. Refresh and try again.'
+        );
+
+        if(unstarted){
+          r.cancelled = true;
+        }else{
+          settle(r);
+          if(!gameOver(r)) r.resigned = side;
+          recordResult(r);
+        }
+
+        r.since = null;
+      });
+
+      emit(id);
+      ack({ok:true});
+    }catch(error){
+      failure(ack,error);
+    }
+  });
+
+  socket.on('myUnfinishedGames', (payload, ack)=>{
+    if(typeof ack !== 'function') return;
+
+    const member = socket.data.clubMember;
+    if(!member || !(socket.data.clubMemberExpires > Date.now())){
+      return ack({ok:false,error:'Log in first.'});
+    }
+
+    const games = [];
+
+    for(const [id,r] of rooms){
+      if(gameOver(r)) continue;
+      if(!r.players.b && !r.challengeAllowed) continue;
+
+      const side = ['w','b'].find(side =>
+        r.members?.[side]?.id === member.id ||
+        r.challengeAllowed?.[side] === member.id
+      );
+
+      if(!side) continue;
+
+      const other = side === 'w' ? 'b' : 'w';
+
+      games.push({
+        id,
+        gameId:r.gameId,
+        color:side,
+        opponent:r.members?.[other]?.display_name || 'Opponent',
+        rated:!!r.rated,
+        moves:r.game.history().length,
+        canCancel:!r.players.b || (r.rated&&!r.started)
+      });
+    }
+
+    ack({ok:true,games});
+  });
+
   socket.on('create',async(options,ack)=>{
     if(typeof ack!=='function')return;
     try{
@@ -124,6 +216,24 @@ io.on('connection',socket=>{
       await store.change(id,r=>{
         let color=Object.entries(r.players).find(([,t])=>t&&t===payload?.token)?.[0];
         let token=payload?.token;
+        requireThat(!r.cancelled,'This room was cancelled.');
+
+        // Recover an existing seat through a verified account.
+        const verifiedMember = socket.data.clubMemberExpires > Date.now()
+          ? socket.data.clubMember : null;
+
+        if(!color && verifiedMember){
+          const ownedSeat = ['w','b'].find(side =>
+            r.players[side] &&
+            r.members?.[side]?.id === verifiedMember.id
+          );
+
+          if(ownedSeat){
+            color = ownedSeat;
+            token = r.players[color];
+          }
+        }
+
         if(r.challengeAllowed){
           const member=socket.data.clubMember;
           const expected=r.challengeAllowed[color||'b'];
@@ -175,6 +285,7 @@ io.on('connection',socket=>{
     r.resigned=socket.data.color;r.since=null;
   });
   bindRoom(socket,'restart',r=>{
+    requireThat(!r.cancelled,'This game was cancelled. Create a new game.');
     requireThat(gameOver(r),'Finish or resign the current game first.');
     requireThat(!tracked(r)||r.saved,'Wait for the result to save, then try New game again.');
     r.game.reset();r.resultRecorded=false;r.drawReason=null;r.drawOffer=null;
@@ -194,7 +305,7 @@ io.on('connection',socket=>{
 const expiring=new Set();
 setInterval(()=>{
   for(const [id,r] of rooms){
-    saveFinishedGame(r,io);
+    saveFinishedGame(r,io,store);
     if(r.since===null||expiring.has(id)||Date.now()-r.since<r.remaining[r.game.turn()])continue;
     expiring.add(id);
     store.change(id,draft=>{settle(draft);recordResult(draft)})

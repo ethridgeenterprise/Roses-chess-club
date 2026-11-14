@@ -12,6 +12,7 @@ export function installChallenges(io, rooms, createRoom) {
 
   function busy(id) {
     for (const room of rooms.values()) {
+      if (room.cancelled) continue;
       // Ordinary rooms waiting for an opponent do not block challenges.
       if (!room.players.b && !room.challengeAllowed) continue;
       const belongs = ['w', 'b'].some(

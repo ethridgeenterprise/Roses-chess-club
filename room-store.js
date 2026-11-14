@@ -3,7 +3,7 @@ import {Chess} from 'chess.js';
 
 const fields = ['gameId','roomCode','players','members','challengeAllowed',
   'created','remaining','since','timeout','resigned','drawReason','drawOffer',
-  'scores','resultRecorded','rated','started','ready','saved'];
+  'scores','resultRecorded','rated','started','ready','saved','cancelled'];
 
 export function encodeRoom(room){
   const value = {version:1,pgn:room.game.pgn(),fen:room.game.fen()};
