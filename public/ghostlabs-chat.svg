@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 110">
+  <defs>
+    <linearGradient id="gold" x2="0.8" y2="1">
+      <stop stop-color="#263b3b"/>
+      <stop offset="1" stop-color="#050909"/>
+    </linearGradient>
+    <rect id="tooth" x="75" y="8" width="10" height="12" rx="1" stroke="#061817" stroke-width="1.5"/>
+  </defs>
+  <g fill="#00bfa5">
+    <use href="#tooth"/>
+    <use href="#tooth" transform="rotate(30 80 55)"/>
+    <use href="#tooth" transform="rotate(60 80 55)"/>
+    <use href="#tooth" transform="rotate(90 80 55)"/>
+    <use href="#tooth" transform="rotate(120 80 55)"/>
+    <use href="#tooth" transform="rotate(150 80 55)"/>
+    <use href="#tooth" transform="rotate(180 80 55)"/>
+    <use href="#tooth" transform="rotate(210 80 55)"/>
+    <use href="#tooth" transform="rotate(240 80 55)"/>
+    <use href="#tooth" transform="rotate(270 80 55)"/>
+    <use href="#tooth" transform="rotate(300 80 55)"/>
+    <use href="#tooth" transform="rotate(330 80 55)"/>
+  </g>
+  <g stroke="#00bfa5" stroke-width="2.5" fill="none">
+    <circle cx="80" cy="55" r="39"/>
+    <circle cx="80" cy="55" r="33" opacity=".4"/>
+    <path d="M42 40H25L17 30H7
+             M42 70H22L13 80H7
+             M118 40H135L143 30H153
+             M118 70H138L147 80H153"/>
+    <circle cx="7" cy="30" r="3"/>
+    <circle cx="7" cy="80" r="3"/>
+    <circle cx="153" cy="30" r="3"/>
+    <circle cx="153" cy="80" r="3"/>
+  </g>
+  <path d="M60 82H102V75H96
+           C104 48 92 31 78 27
+           L68 20L69 34L53 51L57 61
+           L69 58L78 48
+           C82 61 67 64 65 75H60Z"
+        fill="url(#gold)" stroke="#061817"
+        stroke-width="3" stroke-linejoin="round"/>
+  <circle cx="73" cy="39" r="2.5" fill="#00ffda"/>
+</svg>

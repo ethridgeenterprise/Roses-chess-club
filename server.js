@@ -4,6 +4,7 @@ import {installRated} from './rated.js';
 import {outcome,gameOver,installDraws} from './rules.js';
 import {saveFinishedGame,tracked,playerError} from './results.js';
 import {installPresence} from './presence.js';
+import {installChat} from './chat.js';
 import {RoomStore} from './room-store.js';
 import express from 'express';
 import {createServer} from 'node:http';
@@ -19,6 +20,7 @@ const requireThat=(condition,message)=>{if(!condition)throw new Error(message)};
 app.use(express.static('public'));
 installLeaderboard(app);
 installPresence(io,rooms);
+installChat(io);
 
 function settle(r){
   if(r.since===null||r.timeout||r.resigned||gameOver(r))return;

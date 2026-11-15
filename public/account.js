@@ -288,6 +288,9 @@ function onlineBox() {
 
 function syncPresence(session) {
   presenceSession = session;
+  window.dispatchEvent(new CustomEvent('ghost-chat-auth', {
+    detail: { signedIn: !!session?.user }
+  }));
   clearTimeout(presenceTimer);
   if (!session) onlineBox().textContent = 'Log in to see club members online.';
   presenceTimer = setTimeout(() => {

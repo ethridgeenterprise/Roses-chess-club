@@ -1,0 +1,289 @@
+/* GhostLabs Chat Engine v1.0
+   Midnight Console Theme */
+
+#ghostChatPanel {
+  min-width: 0;
+  padding: 12px;
+  margin: 8px 0;
+  background: rgba(222,197,160,.85);
+  border: 3px solid #50351f;
+  border-radius: 12px;
+}
+
+#ghostChatPanel[hidden] {
+  display: none !important;
+}
+
+#ghostChatPanel h2 {
+  margin: 0 0 4px;
+  text-align: center;
+  font-size: 24px;
+  color: #241307;
+}
+
+.gc-brand {
+  text-align: center;
+  font-family: monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+  color: #50351f;
+}
+
+.gc-console {
+  background: #080a0b;
+  color: #fff;
+  border: 2px solid #302820;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: inset 0 0 20px #000;
+  font-family: monospace;
+}
+
+.gc-status {
+  font-size: 12px;
+  color: #ffb366;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #333;
+}
+
+.gc-status.connected {
+  color: #80ff80;
+}
+
+#gcMessages {
+  height: 340px;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+  scrollbar-width: thin;
+  scrollbar-color: #555 #101010;
+  padding: 8px 2px;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.gc-message {
+  padding: 7px 2px;
+  border-bottom: 1px solid #202020;
+  white-space: pre-wrap;
+}
+
+.gc-message small {
+  display: block;
+  font-size: 10px;
+  color: #999;
+}
+
+.gc-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 0;
+  border-top: 1px solid #333;
+}
+
+#ghostChatPanel button,
+#ghostChatPanel select {
+  background: #202427;
+  color: #eee;
+  border: 1px solid #484848;
+  border-radius: 5px;
+  padding: 7px 9px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+#ghostChatPanel button:hover,
+#ghostChatPanel button.active {
+  color: #80ff80;
+  border-color: #80ff80;
+  background: #183020;
+}
+
+#ghostChatPanel button:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+#gcEmojiTray:not([hidden]) {
+  display: grid;
+  grid-template-columns: repeat(5,1fr);
+  gap: 4px;
+  padding: 8px 0;
+}
+
+#gcInput {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  resize: vertical;
+  background: #151719;
+  color: white;
+  border: 1px solid #555;
+  border-radius: 5px;
+  padding: 10px;
+  font-family: monospace;
+  font-size: 15px;
+  text-transform: none;
+}
+
+#gcInput:focus {
+  outline: 1px solid #80ff80;
+}
+
+#ghostChatPanel #gcSend {
+  width: 100%;
+  margin-top: 7px;
+  background: #183020;
+  color: #80ff80;
+  font-weight: bold;
+}
+
+.gc-note {
+  font-size: 12px;
+  text-align: center;
+  line-height: 1.5;
+  margin-bottom: 0;
+  color: #50351f;
+}
+
+/* Balanced three-column lobby */
+
+@media (min-width: 1050px) {
+  .wrap {
+    max-width: 1450px;
+  }
+
+  #clubLayout.ghost-chat-active {
+    grid-template-columns:
+      minmax(200px, 23fr)
+      minmax(0, 45fr)
+      minmax(280px, 32fr);
+    gap: 12px;
+  }
+
+  .ghost-chat-active #clubMain > .panel {
+    padding: 12px;
+    margin: 8px 0;
+  }
+
+  #ghostChatPanel {
+    position: sticky;
+    top: 16px;
+  }
+}
+
+@media (max-width: 1049px) {
+  #ghostChatPanel {
+    grid-column: 1 / -1;
+    position: static;
+  }
+
+  #gcMessages {
+    height: 280px;
+  }
+}
+
+/* Ghost Labs chat emblem */
+.gc-heading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.gc-heading img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 3px #b68b45);
+}
+
+#ghostChatPanel .gc-heading h2 {
+  margin: 0;
+}
+
+/* Ghost Labs electric teal edition */
+.gc-heading img {
+  width: 68px;
+  height: 58px;
+  filter: drop-shadow(0 0 3px #00bfa5);
+}
+
+/* GhostLabs Administration */
+
+#gcAdmin[hidden] {
+  display: none !important;
+}
+
+#gcAdmin {
+  background: #101719;
+  color: #65e6d2;
+  border: 2px solid #258f83;
+  border-radius: 10px;
+  padding: 12px;
+  margin-top: 12px;
+}
+
+#gcAdmin h3 {
+  color: #65e6d2;
+  font-size: 16px;
+  margin: 0 0 12px;
+}
+
+#gcAdmin select {
+  width: 100%;
+  background: #202c30;
+  color: #ffffff;
+  border: 1px solid #258f83;
+  border-radius: 5px;
+  padding: 8px;
+  margin: 8px 0;
+}
+
+#gcAdmin button {
+  background: #174c47;
+  color: #ffffff;
+  border: 1px solid #258f83;
+  border-radius: 5px;
+  padding: 7px 10px;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+
+#gcAdmin button:hover {
+  filter: brightness(1.25);
+}
+
+#gcAdmin #gcBan {
+  background: #822b35;
+  border-color: #bc4652;
+}
+
+.gc-ban-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border-bottom: 1px solid #304541;
+  padding: 6px 0;
+}
+
+.gc-ban-row span {
+  font-size: 12px;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+#gcAdminStatus {
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+#gcBanList {
+  font-size: 13px;
+  margin-top: 8px;
+}
+
