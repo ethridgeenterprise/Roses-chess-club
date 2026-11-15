@@ -393,7 +393,59 @@ input{background:#eee9de}
   stroke:#c09038; stroke-width:3; fill:none;
 }
 </style>
-</head><body><div class="wrap"><header><h1><a class="club-home-title" href="/">♔ Rose's Chess Club ♚</a></h1>
+
+<style>
+.royal-header {
+    opacity: 1 !important;
+    filter: brightness(1.10) contrast(1.05);
+    background:
+        
+        url('/royal-chess-header.webp') center center / cover no-repeat;
+    min-height: 210px;
+    border: 2px solid #795636;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+.royal-header h1 a {
+    color: #fff1d6;
+    text-shadow: 0 3px 8px #000, 0 0 15px #000;
+}
+.royal-header p {
+    color: #fff1d6;
+    font-weight: bold;
+    text-shadow: 0 2px 5px #000;
+}
+@media (max-width: 600px) {
+    .royal-header {
+        min-height: 160px;
+        background-size: cover;
+    }
+}
+</style>
+
+<style>
+.royal-header {
+    position: relative;
+    isolation: isolate;
+    background: transparent !important;
+    filter: none !important;
+}
+.royal-header::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: url('/royal-chess-header.webp')
+        center center / cover no-repeat;
+    opacity: 0.60;
+}
+</style>
+</head><body><div class="wrap"><header class="royal-header"><h1><a class="club-home-title" href="/">Rose's Chess Club</a></h1>
 <nav aria-label="Main navigation"><a class="club-home-button" href="/">⌂ Home</a> <a class="club-home-button" href="/academy.html">♟ Chess Academy</a></nav><p>64 Squares. Infinite Possibilities.</p></header>
 <section class="panel" id="accountPanel">
   <h2 style="margin-top:0">Club membership</h2>

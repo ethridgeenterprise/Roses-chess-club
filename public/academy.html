@@ -81,11 +81,51 @@ a.club-link:focus-visible{
 }
 footer{text-align:center;padding:30px}
 </style>
+
+<style>
+.royal-header {
+    background: url('/royal-chess-header.webp')
+        center center / cover no-repeat;
+    min-height: 240px;
+    opacity: 1 !important;
+    filter: brightness(1.10) contrast(1.05);
+    border-bottom: 2px solid #795636;
+    color: #fff1d6;
+    text-shadow: 0 3px 8px #000;
+}
+.royal-header h1 {
+    color: #fff1d6;
+}
+@media (max-width: 600px) {
+    .royal-header {
+        min-height: 180px;
+    }
+}
+</style>
+
+<style>
+.royal-header {
+    position: relative;
+    isolation: isolate;
+    background: transparent !important;
+    filter: none !important;
+}
+.royal-header::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: url('/royal-chess-header.webp')
+        center center / cover no-repeat;
+    opacity: 0.60;
+}
+</style>
 </head>
 <body>
-<header>
+<header class="royal-header">
 <a class="club-link" href="index.html">⌂ Return to Chess Club</a>
-<h1>♛ Rose's Chess Academy ♛</h1>
+<h1>Rose's Chess Academy</h1>
 <p>Learn • Practice • Improve • Enjoy</p>
 </header>
 
