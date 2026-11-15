@@ -1,3 +1,8 @@
+import {
+    recordAcademyProgress,
+    puzzleId
+} from './academy-progress.js';
+
 import {Chess} from './vendor/chess-rules/chess.js';
 import {Chessboard,BORDER_TYPE} from './vendor/cm-chessboard/src/Chessboard.js';
 
@@ -97,6 +102,9 @@ document.getElementById('tacticsBoard')
    game.move({from:selected,to:square,promotion:'q'});
    board.setPosition(game.fen(),true);
    solved.add(index);
+    void recordAcademyProgress(
+        'tactics', puzzleId(p)
+    );
    selected=null;
 
    instruction.textContent=

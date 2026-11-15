@@ -1,0 +1,415 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Georgia, serif;
+    color: #382419;
+    background: linear-gradient(135deg, #f3e5cb, #c49a70);
+    min-height: 100vh;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+/* Royal Header */
+
+.royal-header {
+    position: relative;
+    isolation: isolate;
+    text-align: center;
+    padding: 35px 15px;
+    min-height: 240px;
+    background: #493022;
+    color: #fff1d6;
+    text-shadow: 0 3px 8px #000;
+    border-bottom: 2px solid #795636;
+}
+
+.royal-header::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: url('/royal-chess-header.webp')
+        center center / cover no-repeat;
+    opacity: 0.60;
+}
+
+h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    margin: 25px 0 10px;
+}
+
+header nav {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+header nav a {
+    color: #fff1d6;
+    background: #493022bb;
+    border: 1px solid #e9d3af;
+    border-radius: 9px;
+    padding: 10px 16px;
+    text-decoration: none;
+}
+
+/* Dashboard */
+
+main {
+    max-width: 1100px;
+    margin: auto;
+    padding: 25px;
+}
+
+.panel {
+    background: #fff6e8;
+    padding: 25px;
+    margin-bottom: 22px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px #38241925;
+}
+
+.panel h2 {
+    margin-top: 0;
+}
+
+.identity {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+}
+
+#profileAvatar {
+    width: 90px;
+    height: 90px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #70452c;
+    color: #fff6e8;
+    font-size: 55px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border: 3px solid #c49a70;
+}
+
+#profileAvatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#profileName {
+    margin: 0;
+}
+
+/* Player Statistics */
+
+.statistics {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+.stat {
+    background: #fff6e8;
+    border-radius: 12px;
+    padding: 20px 10px;
+    text-align: center;
+    box-shadow: 0 5px 15px #38241920;
+}
+
+.stat span {
+    display: block;
+    font-size: 0.95rem;
+}
+
+.stat strong {
+    display: block;
+    margin-top: 10px;
+    font-size: 1.9rem;
+    color: #70452c;
+}
+
+/* Academy Warm-Ups */
+
+.warmups {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 15px;
+}
+
+.warmups article {
+    background: #f3e5cb;
+    border: 1px solid #dcc5a4;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.warmups h3 {
+    margin-top: 0;
+}
+
+/* Buttons */
+
+.button, button {
+    display: inline-block;
+    background: #70452c;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 9px;
+    border: none;
+    text-decoration: none;
+    font: inherit;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.button:hover, button:hover {
+    background: #96623e;
+}
+
+a:focus-visible,
+button:focus-visible,
+select:focus-visible {
+    outline: 3px solid #b77a35;
+    outline-offset: 4px;
+}
+
+select {
+    font: inherit;
+    padding: 8px;
+    border-radius: 7px;
+    background: #fffaf2;
+    color: #382419;
+}
+
+/* Game History */
+
+#gameHistory {
+    margin-top: 18px;
+}
+
+.game-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 15px 0;
+    border-bottom: 1px solid #dcc5a4;
+}
+
+.game-details {
+    flex: 1;
+    min-width: 140px;
+}
+
+.game-details small {
+    display: block;
+    margin-top: 6px;
+}
+
+.win {
+    color: #28733b;
+    font-weight: bold;
+}
+
+.loss {
+    color: #a53434;
+    font-weight: bold;
+}
+
+.draw {
+    color: #756248;
+    font-weight: bold;
+}
+
+/* Rating Graph */
+
+#ratingHistory svg {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+/* Footer */
+
+footer {
+    text-align: center;
+    padding: 25px;
+    color: #fff1d6;
+    background: #493022;
+}
+
+footer p {
+    margin: 6px;
+}
+
+/* Tablet and Mobile */
+
+@media (max-width: 850px) {
+    .statistics {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    main {
+        padding: 12px;
+    }
+
+    .panel {
+        padding: 18px;
+    }
+
+    .statistics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .warmups {
+        grid-template-columns: 1fr;
+    }
+
+    .royal-header {
+        min-height: 180px;
+    }
+
+    #profileAvatar {
+        width: 65px;
+        height: 65px;
+        font-size: 40px;
+    }
+}
+
+/* Enhanced Rating History */
+
+.rating-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.rating-summary div {
+    background: #f3e5cb;
+    border-radius: 10px;
+    padding: 16px 10px;
+    text-align: center;
+}
+
+.rating-summary small {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.rating-summary strong {
+    display: block;
+    font-size: 1.5rem;
+    color: #70452c;
+}
+
+.rating-legend {
+    display: flex;
+    justify-content: center;
+    gap: 22px;
+    flex-wrap: wrap;
+    font-weight: bold;
+}
+
+
+/* Personal Game Replay */
+
+#profileReplayBoard {
+    width: 100%;
+    max-width: 540px;
+    margin: 20px auto;
+}
+
+#profileReplayTitle,
+#profileReplayStatus {
+    text-align: center;
+}
+
+.replay-controls {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+#replayNotation {
+    background: #f3e5cb;
+    border-radius: 10px;
+    padding: 18px;
+    line-height: 1.9;
+    font-size: 1.1rem;
+    overflow-wrap: anywhere;
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+
+/* Daily Academy Challenges */
+
+#dailyPuzzle {
+    background: #f3e5cb;
+    border: 1px solid #dcc5a4;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+#dailyPuzzleBoard {
+    width: 100%;
+    max-width: 420px;
+    margin: 20px auto;
+}
+
+#dailyPuzzleTitle {
+    font-size: 1.5rem;
+    color: #70452c;
+}
+
+#dailyPuzzleInstruction {
+    min-height: 45px;
+    font-size: 1.15rem;
+    line-height: 1.6;
+}
+
+#dailyPuzzleProgress {
+    color: #795636;
+    font-weight: bold;
+}
+
+
+/* Academy Progress */
+
+.academy-progress-item {
+    background: #f3e5cb;
+    padding: 18px;
+    margin: 15px 0;
+    border-radius: 10px;
+}
+
+.academy-progress-item progress {
+    display: block;
+    width: 100%;
+    height: 18px;
+    margin-top: 12px;
+    accent-color: #795636;
+}

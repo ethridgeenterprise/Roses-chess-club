@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>My Chess Room | Rose's Chess Club</title>
+<link rel="stylesheet" href="/vendor/cm-chessboard/assets/chessboard.css">
+<link rel="stylesheet" href="/vendor/cm-chessboard/assets/extensions/markers/markers.css">
+<link rel="stylesheet" href="profile.css">
+</head>
+
+<body>
+
+<header class="royal-header">
+  <nav>
+    <a href="index.html">⌂ Chess Club</a>
+    <a href="academy.html">Chess Academy</a>
+    <a href="computer.html">Computer Practice</a>
+  </nav>
+  <h1>My Chess Room</h1>
+  <p>Play • Learn • Improve • Enjoy</p>
+</header>
+
+<main>
+
+  <p id="profileStatus" role="status">
+    Loading your chess room...
+  </p>
+
+  <section id="memberDashboard" hidden>
+
+    <section class="panel identity">
+      <div id="profileAvatar">♞</div>
+      <div>
+        <h2 id="profileName">Welcome!</h2>
+        <p id="memberSince"></p>
+      </div>
+    </section>
+
+    <section class="statistics">
+      <article class="stat">
+        <span>Club Rating</span>
+        <strong id="rating">—</strong>
+      </article>
+
+      <article class="stat">
+        <span>Rated Games</span>
+        <strong id="gamesPlayed">—</strong>
+      </article>
+
+      <article class="stat">
+        <span>Victories</span>
+        <strong id="wins">—</strong>
+      </article>
+
+      <article class="stat">
+        <span>Losses</span>
+        <strong id="losses">—</strong>
+      </article>
+
+      <article class="stat">
+        <span>Draws</span>
+        <strong id="draws">—</strong>
+      </article>
+
+      <article class="stat">
+        <span>Win Rate</span>
+        <strong id="winRate">—</strong>
+      </article>
+    </section>
+
+    <section class="panel">
+      <h2>♔ My Rating Journey</h2>
+      <p>Watch your chess skills grow over time.</p>
+      <div id="ratingHistory">
+        <p>No rating history yet.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>☕ Daily Warm-Up</h2>
+      <p>Grab a cup of coffee and sharpen your mind!</p>
+
+
+      <div id="dailyPuzzle">
+        <h3 id="dailyPuzzleTitle">Today's Challenge</h3>
+        <p id="dailyPuzzleProgress"></p>
+        <p id="dailyPuzzleInstruction" aria-live="polite"></p>
+
+        <div id="dailyPuzzleBoard"></div>
+
+        <div class="replay-controls">
+          <button id="dailyPuzzleHint">Hint</button>
+          <button id="dailyPuzzleReset">Retry</button>
+          <button id="dailyPuzzleNext">Next Puzzle ▶</button>
+        </div>
+      </div>
+
+<div class="warmups">
+
+        <article>
+          <h3>♘ Opening Practice</h3>
+          <p>Strengthen your opening strategy.</p>
+          <a class="button" href="lesson-openings.html">
+            Practice
+          </a>
+        </article>
+
+        <article>
+          <h3>♗ Tactical Challenge</h3>
+          <p>Discover forks, pins and combinations.</p>
+          <a class="button" href="lesson-tactics.html">
+            Solve
+          </a>
+        </article>
+
+        <article>
+          <h3>♚ Checkmate Challenge</h3>
+          <p>Find the winning combination.</p>
+          <a class="button" href="lesson-checkmates.html">
+            Play
+          </a>
+        </article>
+
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>♟ My Game History</h2>
+
+      <label for="gameFilter">Show:</label>
+      <select id="gameFilter">
+        <option value="all">All club games</option>
+        <option value="rated">Rated games</option>
+        <option value="casual">Casual games</option>
+      </select>
+
+      <div id="gameHistory">
+        <p>Loading games...</p>
+      </div>
+    </section>
+
+
+
+    <section class="panel">
+      <h2>♞ My Computer Practice</h2>
+      <p>Practice, improve and challenge yourself.</p>
+
+      <div class="statistics">
+        <article class="stat">
+          <span>Played</span>
+          <strong id="practicePlayed">0</strong>
+        </article>
+        <article class="stat">
+          <span>Victories</span>
+          <strong id="practiceWins">0</strong>
+        </article>
+        <article class="stat">
+          <span>Losses</span>
+          <strong id="practiceLosses">0</strong>
+        </article>
+        <article class="stat">
+          <span>Draws</span>
+          <strong id="practiceDraws">0</strong>
+        </article>
+      </div>
+
+      <label for="practiceFilter">Difficulty:</label>
+      <select id="practiceFilter">
+        <option value="all">All levels</option>
+        <option value="1">Beginner</option>
+        <option value="2">Casual</option>
+        <option value="3">Intermediate</option>
+        <option value="4">Advanced</option>
+        <option value="5">Expert</option>
+      </select>
+
+      <div id="practiceHistory">
+        <p>Loading practice history...</p>
+      </div>
+
+    </section>
+
+    <section class="panel" id="profileReplayRoom" hidden>
+      <h2>♟ Game Replay</h2>
+      <h3 id="profileReplayTitle"></h3>
+      <p id="profileReplayStatus" aria-live="polite"></p>
+
+      <div id="profileReplayBoard"
+           aria-label="Game replay chessboard"></div>
+
+      <div class="replay-controls">
+        <button id="replayStart">⏮ Start</button>
+        <button id="replayBack">◀ Back</button>
+        <button id="replayNext">Next ▶</button>
+        <button id="replayEnd">End ⏭</button>
+        <button id="replayClose">Close</button>
+      </div>
+
+      <div id="replayNotation"></div>
+    </section>
+
+    <section class="panel">
+      <h2>♙ My Academy Progress</h2>
+      <div id="academyProgress">
+        Loading Academy progress...
+      </div>
+      <a class="button" href="academy.html">
+        Visit the Academy
+      </a>
+    </section>
+
+  </section>
+
+</main>
+
+<footer>
+  <p>Rose's Chess Club</p>
+  <p>Website brought to you by Ghostlabs</p>
+</footer>
+
+<script type="module" src="profile.js"></script>
+</body>
+</html>

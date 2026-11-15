@@ -1,3 +1,8 @@
+import {
+  getPracticeOwner,
+  savePracticeGame
+} from './practice-history.js';
+
 import {Chess} from './vendor/chess-rules/chess.js';
 import {Chessboard,BORDER_TYPE} from './vendor/cm-chessboard/src/Chessboard.js';
 import {Markers,MARKER_TYPE} from './vendor/cm-chessboard/src/extensions/markers/Markers.js';
@@ -14,6 +19,51 @@ let selected = null;
 let thinking = false;
 let worker = null;
 let requestId = 0;
+
+let practiceGameId = crypto.randomUUID();
+let practiceOwner = getPracticeOwner();
+let practiceSaveStarted = false;
+
+async function autoSavePractice(){
+  if(!game.isGameOver() || practiceSaveStarted) return;
+  if(!game.history().length) return;
+
+  practiceSaveStarted = true;
+
+  const id = practiceGameId;
+
+  const result = game.isCheckmate()
+    ? (game.turn() === 'w' ? '0-1' : '1-0')
+    : '1/2-1/2';
+
+  const record = {
+    id,
+    difficulty: level,
+    side: human,
+    result,
+    pgn: game.pgn(),
+    finished_at: new Date().toISOString()
+  };
+
+  try {
+    const owner = await practiceOwner;
+    const saved = await savePracticeGame(record, owner);
+
+    if(saved && id === practiceGameId){
+      $('computerExportStatus').textContent =
+        'Game automatically saved to My Chess Room!';
+    }
+  } catch(error){
+    console.error('Practice save failed:', error);
+
+    if(id === practiceGameId){
+      practiceSaveStarted = false;
+      $('computerExportStatus').textContent =
+        'Automatic save failed. Manual saving is available.';
+    }
+  }
+}
+
 
 const board = new Chessboard($('computerBoard'),{
   position:game.fen(),
@@ -84,6 +134,7 @@ function paint(){
   }
   $('computerStatus').textContent = text;
   updateCapturedPieces();
+  void autoSavePractice();
   $('computerMoves').textContent = game.history()
     .map((move,i)=>(i%2===0 ? `${Math.floor(i/2)+1}. ` : '')+move)
     .join('  ');
@@ -470,6 +521,9 @@ $('computerNew').onclick = ()=>{
   thinking = false;
   selected = null;
   game.reset();
+  practiceGameId = crypto.randomUUID();
+  practiceOwner = getPracticeOwner();
+  practiceSaveStarted = false;
   human = $('computerSide').value;
   level = Number($('computerLevel').value);
   $('computerRetry').hidden = true;

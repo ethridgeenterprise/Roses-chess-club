@@ -1,3 +1,8 @@
+import {
+    recordAcademyProgress,
+    puzzleId
+} from './academy-progress.js';
+
 import {Chess} from './vendor/chess-rules/chess.js';
 import {Chessboard,BORDER_TYPE} from './vendor/cm-chessboard/src/Chessboard.js';
 
@@ -101,6 +106,9 @@ document.getElementById('checkmateBoard')
 
     board.setPosition(game.fen(),true);
     solved.add(index);
+    void recordAcademyProgress(
+        'checkmates', puzzleId(p)
+    );
     selected=null;
 
     instruction.textContent='♛ CHECKMATE! Excellent work! ⭐';
